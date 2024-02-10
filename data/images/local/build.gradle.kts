@@ -1,5 +1,3 @@
-import java.util.Properties
-
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     alias(libs.plugins.androidLibrary)
@@ -8,16 +6,14 @@ plugins {
 }
 
 android {
-    namespace = "com.andmar.data.images"
+    namespace = "com.andmar.data.images.local"
     compileSdk = 34
-
 
     defaultConfig {
         minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-
     }
 
     buildTypes {
@@ -34,24 +30,24 @@ android {
         jvmTarget = "1.8"
     }
 
+
 }
 
 dependencies {
 
-    implementation(project(":data:images:network"))
-    implementation(project(":data:images:local"))
+    implementation(libs.kotlinx.coroutines.core)
 
-    implementation(libs.core.ktx)
-    implementation(libs.appcompat)
-    implementation(libs.material)
-    testImplementation(libs.junit)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
 
     // hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
-    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.timber)
 
+    testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
 }
