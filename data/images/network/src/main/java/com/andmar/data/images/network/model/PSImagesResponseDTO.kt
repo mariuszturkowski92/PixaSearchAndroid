@@ -1,11 +1,11 @@
-package com.andmar.data.images.network
+package com.andmar.data.images.network.model
 
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class PSImagesReponseDTO(
+data class PSImagesResponseDTO(
     @SerialName("hits")
     val hits: List<HitDTO>,
     @SerialName("total")

@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -160,9 +161,11 @@ fun ImageItem(
             val textColor = remember { mutableStateOf(Color.Black) }
 
             AsyncImage(
-                model = image.thumbUrl,
+                model = image.thumbSource.url,
                 contentDescription = "Image thumbnail",
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .aspectRatio(image.thumbSource.width.toFloat() / image.thumbSource.height),
                 contentScale = ContentScale.FillWidth,
                 onSuccess = { success ->
                     val drawable = success.result.drawable
