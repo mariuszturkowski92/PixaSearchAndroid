@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_default_title">Ups…</string>
+    <string name="error_default_message">Something went wrong. Please try again.</string>
+    <string name="error_default_close_button">Close</string>
+    <string name="error_default_retry_button">Retry</string>
+</resources>
