@@ -17,6 +17,13 @@ internal class ImagesRepositoryImpl @Inject constructor(
         return flow {
             val response = imagesRemoteDataSource.getImages(query, page)
             emit(ImagesResult.fromDTO(response, page))
+            imagesLocalDataSource.insertOrUpdateImageQueryWithImages(
+                Mapper.mapFromPSImagesResponseDTOToImageQueryWithImages(
+                    response,
+                    query,
+                    page
+                )
+            )
         }
     }
 }

@@ -2,10 +2,11 @@ package com.andmar.data.images.local.di
 
 import android.content.Context
 import androidx.room.Room
-import com.andmar.data.images.local.ImagesDao
+import com.andmar.data.images.local.ImageDBDao
 import com.andmar.data.images.local.ImagesDatabase
 import com.andmar.data.images.local.ImagesLocalDataSource
 import com.andmar.data.images.local.ImagesLocalDataSourceImpl
+import com.andmar.data.images.local.ImagesQueryDao
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -25,11 +26,14 @@ class DatabaseModule {
             context.applicationContext,
             ImagesDatabase::class.java,
             "images.db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides
-    internal fun provideTaskDao(database: ImagesDatabase): ImagesDao = database.imagesDao()
+    internal fun provideImageQueryDao(database: ImagesDatabase): ImagesQueryDao = database.imagesQueryDao()
+
+    @Provides
+    internal fun provideImageDBDao(database: ImagesDatabase): ImageDBDao = database.imagesDao()
 }
 
 @Module

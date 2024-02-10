@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class ImageDB(
-    @PrimaryKey val id: Int,
+    @PrimaryKey val imageId: Int,
     val previewURL: String,
     val previewWidth: Int,
     val previewHeight: Int,
@@ -15,7 +15,7 @@ data class ImageDB(
     val user: String,
     val userImageURL: String,
     val likes: Int,
-    val favorites: Int,
     val comments: Int,
     val tags: String,
+    val userId: Int,
 )
