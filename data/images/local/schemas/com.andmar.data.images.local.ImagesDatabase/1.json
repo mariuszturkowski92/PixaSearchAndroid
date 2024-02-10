@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d4b1d54080c9e3453b3aa8bf080ccf02",
+    "identityHash": "6564bd8b30e21dbabf40dbb573de2288",
     "entities": [
       {
         "tableName": "ImageDB",
@@ -98,7 +98,7 @@
       },
       {
         "tableName": "ImageQueryDB",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`query` TEXT NOT NULL, `fetched_pages` INTEGER NOT NULL, `total_results` INTEGER NOT NULL, PRIMARY KEY(`query`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`query` TEXT NOT NULL, `fetched_pages` INTEGER NOT NULL, `total_results` INTEGER NOT NULL, `created_at` INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP, `modified_at` INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(`query`))",
         "fields": [
           {
             "fieldPath": "query",
@@ -117,6 +117,20 @@
             "columnName": "total_results",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "CURRENT_TIMESTAMP"
+          },
+          {
+            "fieldPath": "modifiedAt",
+            "columnName": "modified_at",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "CURRENT_TIMESTAMP"
           }
         ],
         "primaryKey": {
@@ -169,7 +183,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd4b1d54080c9e3453b3aa8bf080ccf02')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6564bd8b30e21dbabf40dbb573de2288')"
     ]
   }
 }

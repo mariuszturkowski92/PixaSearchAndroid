@@ -12,9 +12,16 @@ import com.andmar.data.images.local.entity.ImageQueryWithImages
 
 @Dao
 internal interface ImagesQueryDao {
+
+    @Query("SELECT COUNT(*) FROM imagequerydb")
+    suspend fun count(): Int
+
     @Transaction
     @Query("SELECT * FROM imagequerydb")
     suspend fun getAll(): List<ImageQueryWithImages>
+
+    @Query("SELECT * FROM imagequerydb ORDER BY modified_at LIMIT :limit OFFSET $MAX_QUERY_CACHED")
+    suspend fun selectOldest(limit: Int): List<ImageQueryWithImages>
 
     @Transaction
     @Query("SELECT * FROM imagequerydb WHERE `query` LIKE :query")

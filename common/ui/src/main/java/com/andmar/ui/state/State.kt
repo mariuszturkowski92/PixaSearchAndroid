@@ -14,7 +14,14 @@ data class State<T>(
     fun success(): State<T> = copy(state = StateType.Success)
     fun success(data: T): State<T> = copy(data = data, state = StateType.Success)
     fun error(throwable: Throwable, retryTag: String?, errorDialogType: ErrorDialogType): State<T> =
-        copy(state = StateType.Error(throwable, retryTag, errorDialogType))
+        copy(
+            state = StateType.Error(
+                throwable,
+                retryTag,
+                errorDialogType,
+                stateTypeBeforeError = if (state is StateType.Error) state.stateTypeBeforeError else state
+            )
+        )
 
     fun none(): State<T> = copy(state = StateType.None)
 }
@@ -48,5 +55,6 @@ sealed class StateType {
         val error: Throwable?,
         val retryTag: String?,
         val errorDialogType: ErrorDialogType,
+        val stateTypeBeforeError: StateType = None,
     ) : StateType()
 }

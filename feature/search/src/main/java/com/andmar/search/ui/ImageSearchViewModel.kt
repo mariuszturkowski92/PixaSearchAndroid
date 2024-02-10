@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.andmar.data.images.entity.ImagesResult
 import com.andmar.data.images.usecase.GetImagesUseCase
-import com.andmar.ui.state.BaseViewModel
+import com.andmar.ui.state.StateViewModel
 import com.andmar.ui.state.State
 import com.andmar.ui.state.launchWithErrorHandlingOn
 import com.andmar.ui.state.success
@@ -16,15 +16,11 @@ import javax.inject.Inject
 internal class ImageSearchViewModel @Inject constructor(
     val handle: SavedStateHandle,
     private val getImagesUseCase: GetImagesUseCase,
-) : BaseViewModel() {
+) : StateViewModel<ImagesResult>() {
 
     private val _input = MutableStateFlow(SearchScreenInput(DEFAULT_SEARCH_QUERY))
     val input: MutableStateFlow<SearchScreenInput>
         get() = _input
-
-    private val _uiState: MutableStateFlow<State<ImagesResult>> = MutableStateFlow(State.none())
-    val uiState: MutableStateFlow<State<ImagesResult>>
-        get() = _uiState
 
     init {
         searchForImages()

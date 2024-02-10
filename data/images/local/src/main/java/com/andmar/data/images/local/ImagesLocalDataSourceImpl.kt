@@ -5,6 +5,8 @@ import com.andmar.data.images.local.entity.ImageQueryWithImages
 import javax.inject.Inject
 import javax.inject.Singleton
 
+const val MAX_QUERY_CACHED = 5
+
 @Singleton
 internal class ImagesLocalDataSourceImpl @Inject constructor(
     private val imageQueryDao: ImagesQueryDao,
@@ -23,6 +25,16 @@ internal class ImagesLocalDataSourceImpl @Inject constructor(
             insertImageQueryWithImages(imageQueryWithImages)
         } else {
             updateImageQueryWithImages(imageQueryWithImages)
+        }
+    }
+
+    override suspend fun deleteOldestIfCountExceedCacheLimit() {
+        val count = imageQueryDao.count()
+        if (count > MAX_QUERY_CACHED) {
+            val oldestImageQueryWithImagesList = imageQueryDao.selectOldest(count - MAX_QUERY_CACHED)
+            oldestImageQueryWithImagesList.forEach {
+                deleteImageQueryWithImages(it)
+            }
         }
     }
 
@@ -67,12 +79,15 @@ internal class ImagesLocalDataSourceImpl @Inject constructor(
                 )
             }
         }
-
+        // Step 5: Be sure that the ImageQueryDB do not change the createdAt field during update
+        val finalImageQueryDB = imageQueryWithImages.imageQueryDB.copy(
+            createdAt = currentImageQueryWithImages.imageQueryDB.createdAt,
+        )
         // Update the ImageQueryDB
-        imageQueryDao.update(imageQueryWithImages.imageQueryDB)
+        imageQueryDao.update(finalImageQueryDB)
     }
 
-    suspend fun deleteImageQueryWithImages(imageQueryWithImages: ImageQueryWithImages) {
+    private suspend fun deleteImageQueryWithImages(imageQueryWithImages: ImageQueryWithImages) {
         // Delete the ImageQueryDB
         imageQueryDao.delete(imageQueryWithImages.imageQueryDB)
 

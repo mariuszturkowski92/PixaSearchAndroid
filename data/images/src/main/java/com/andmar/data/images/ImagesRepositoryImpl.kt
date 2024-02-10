@@ -24,6 +24,7 @@ internal class ImagesRepositoryImpl @Inject constructor(
                     page
                 )
             )
+            imagesLocalDataSource.deleteOldestIfCountExceedCacheLimit()
         }
     }
 }

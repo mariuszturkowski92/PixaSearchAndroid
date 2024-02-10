@@ -1,6 +1,7 @@
 package com.andmar.data.images.entity
 
 import com.andmar.data.images.network.model.PSImagesResponseDTO
+import org.jetbrains.annotations.VisibleForTesting
 
 data class ImagesResult(val maxHits: Int, val page: Int, val images: List<PSImage>) {
 
