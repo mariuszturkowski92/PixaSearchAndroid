@@ -74,6 +74,8 @@ dependencies {
     //coil
     implementation(libs.coil.compose)
 
+    implementation(libs.paging.compose)
+
     implementation(libs.timber)
     implementation(libs.kotlinx.coroutines.core)
 

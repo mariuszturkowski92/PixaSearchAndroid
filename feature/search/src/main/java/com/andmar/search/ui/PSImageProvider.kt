@@ -8,7 +8,7 @@ internal class PSImageProvider : PreviewParameterProvider<PSImage> {
     override val values: Sequence<PSImage>
         get() = sequenceOf(
             PSImage(
-                id = "1",
+                id = 1,
                 thumbSource = ImageData(
                     url = "https://www.example.com/image1",
                     height = 100,

@@ -1,6 +1,7 @@
 package com.andmar.data.images.local
 
-import com.andmar.data.images.local.entity.ImageQueryDB
+import androidx.paging.PagingSource
+import com.andmar.data.images.local.entity.ImageDB
 import com.andmar.data.images.local.entity.ImageQueryWithImages
 
 interface ImagesLocalDataSource {
@@ -8,4 +9,7 @@ interface ImagesLocalDataSource {
     suspend fun insertOrUpdateImageQueryWithImages(imageQueryWithImages: ImageQueryWithImages)
 
     suspend fun deleteOldestIfCountExceedCacheLimit()
+    suspend fun insertNewQuery(query: String, images: List<ImageDB>)
+    suspend fun insertNewImagesFor(query: String, images: List<ImageDB>)
+    fun getImagesPagingSource(query: String): PagingSource<Int, ImageDB>
 }

@@ -41,11 +41,13 @@ dependencies {
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.room.paging)
     ksp(libs.room.compiler)
 
     // hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
 
     implementation(libs.timber)
 

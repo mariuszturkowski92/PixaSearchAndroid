@@ -1,5 +1,7 @@
 package com.andmar.data.images
 
+import com.andmar.data.images.entity.ImageData
+import com.andmar.data.images.entity.PSImage
 import com.andmar.data.images.local.entity.ImageDB
 import com.andmar.data.images.local.entity.ImageQueryDB
 import com.andmar.data.images.local.entity.ImageQueryWithImages
@@ -18,7 +20,7 @@ object Mapper {
         return ImageQueryWithImages(imageQueryDB, images)
     }
 
-    private fun mapFromPSImageDTOToImageDB(hit: PSImagesResponseDTO.HitDTO): ImageDB {
+    fun mapFromPSImageDTOToImageDB(hit: PSImagesResponseDTO.HitDTO): ImageDB {
         return ImageDB(
             imageId = hit.id,
             tags = hit.tags,
@@ -33,6 +35,19 @@ object Mapper {
             userId = hit.userId,
             user = hit.user,
             userImageURL = hit.userImageURL
+        )
+    }
+
+    fun mapFromPSImagesResponseDTOToImagesDB(response: PSImagesResponseDTO): List<ImageDB> {
+        return response.hits.map { mapFromPSImageDTOToImageDB(it) }
+    }
+
+    fun mapFromImageDBToPSImage(imageDb: ImageDB): PSImage {
+        return PSImage(
+            id = imageDb.imageId,
+            thumbSource = ImageData(imageDb.previewURL, imageDb.previewHeight, imageDb.previewWidth),
+            username = imageDb.user,
+            tags = imageDb.tags.split(",")
         )
     }
 }

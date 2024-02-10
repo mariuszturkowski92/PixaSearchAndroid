@@ -13,7 +13,7 @@ data class ImagesResult(val maxHits: Int, val page: Int, val images: List<PSImag
                 page = page,
                 images = dto.hits.map { hitDTO ->
                     PSImage(
-                        id = hitDTO.id.toString(),
+                        id = hitDTO.id,
                         thumbSource = ImageData(hitDTO.previewURL, hitDTO.previewHeight, hitDTO.previewWidth),
                         username = hitDTO.user,
                         tags = hitDTO.tags.split(",")

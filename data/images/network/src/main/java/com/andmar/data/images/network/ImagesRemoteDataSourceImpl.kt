@@ -12,13 +12,13 @@ class ImagesRemoteDataSourceImpl @Inject constructor(
 ) : ImagesRemoteDataSource {
 
 
-    override suspend fun getImages(query: String, page: Int): PSImagesResponseDTO {
+    override suspend fun getImages(query: String, page: Int, maxPageSize: Int): PSImagesResponseDTO {
         return client.get(ImagesRemoteDataSource.BASE_URL) {
             url {
                 parameters.append("key", apiKey)
                 parameters.append("q", query)
                 parameters.append("page", page.toString())
-                parameters.append("per_page", "20")
+                parameters.append("per_page", maxPageSize.toString())
             }
         }.body()
     }

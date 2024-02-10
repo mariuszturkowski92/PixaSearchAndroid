@@ -1,5 +1,9 @@
 package com.andmar.data.images.local
 
+import androidx.paging.PagingSource
+import androidx.room.withTransaction
+import com.andmar.data.images.local.entity.ImageDB
+import com.andmar.data.images.local.entity.ImageQueryDB
 import com.andmar.data.images.local.entity.ImageQueryImageCrossRef
 import com.andmar.data.images.local.entity.ImageQueryWithImages
 import javax.inject.Inject
@@ -9,6 +13,7 @@ const val MAX_QUERY_CACHED = 5
 
 @Singleton
 internal class ImagesLocalDataSourceImpl @Inject constructor(
+    private val database: ImagesDatabase,
     private val imageQueryDao: ImagesQueryDao,
     private val imageDBDao: ImageDBDao,
 ) :
@@ -36,6 +41,41 @@ internal class ImagesLocalDataSourceImpl @Inject constructor(
                 deleteImageQueryWithImages(it)
             }
         }
+    }
+
+    override suspend fun insertNewQuery(query: String, images: List<ImageDB>) {
+        database.withTransaction {
+            deleteImageQueryWithImages(query)
+            val imageQueryWithImages = ImageQueryWithImages(
+                ImageQueryDB(query, 0, 0), // TODO remove redundant fields
+                images
+            )
+            insertImageQueryWithImages(imageQueryWithImages)
+        }
+    }
+
+    override suspend fun insertNewImagesFor(
+        query: String,
+        images: List<ImageDB>,
+    ) {
+        database.withTransaction {
+            val imageQueryWithImages = if (imageQueryDao.exists(query)) {
+                imageQueryDao.findByQuery(query)
+            } else {
+                ImageQueryWithImages(
+                    ImageQueryDB(query, 0, 0), // TODO remove redundant fields
+                    emptyList()
+                )
+            }
+            val newImageQueryWithImages = imageQueryWithImages.copy(
+                images = imageQueryWithImages.images + images
+            )
+            updateImageQueryWithImages(newImageQueryWithImages)
+        }
+    }
+
+    override fun getImagesPagingSource(query: String): PagingSource<Int, ImageDB> {
+        return imageQueryDao.pagingSource(query)
     }
 
     private suspend fun insertImageQueryWithImages(imageQueryWithImages: ImageQueryWithImages) {
@@ -85,6 +125,15 @@ internal class ImagesLocalDataSourceImpl @Inject constructor(
         )
         // Update the ImageQueryDB
         imageQueryDao.update(finalImageQueryDB)
+    }
+
+    private suspend fun deleteImageQueryWithImages(query: String) {
+        if (!imageQueryDao.exists(query)) {
+            return
+        }
+        val imageQueryWithImages = imageQueryDao.findByQuery(query)
+        deleteImageQueryWithImages(imageQueryWithImages)
+
     }
 
     private suspend fun deleteImageQueryWithImages(imageQueryWithImages: ImageQueryWithImages) {

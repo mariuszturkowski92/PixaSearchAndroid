@@ -30,11 +30,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.andmar.data.images.entity.ImagesResult
 import com.andmar.data.images.entity.PSImage
 import com.andmar.search.ui.components.SearchBar
-import com.andmar.ui.state.StateHandling
 import com.ramcosta.composedestinations.annotation.Destination
 
 @Destination
@@ -44,46 +44,62 @@ internal fun ImageSearchScreen(
     viewModel: ImageSearchViewModel = hiltViewModel(),
 ) {
     val input = viewModel.input.collectAsState().value
-    val uiState = viewModel.uiState.collectAsState().value
-    uiState.StateHandling(
-        retryHandler = viewModel,
-        content = { imagesResult ->
-            ImageSearchMainContent(
-                input = input,
-                onNewQuery = viewModel::onNewQuery,
-                onSearch = viewModel::searchForImages,
-                block = {
-                    ImageSearchList(
-                        imagesResult = imagesResult,
-                        onImageClick = { image ->
-                            //TODO
-                            navController.navigate("image_detail_screen/${image.id}")
-                        }
-                    )
-                })
-        },
-        onError = { state, composableBuilder ->
-            if (state.data != null) {
-                composableBuilder.content(state.data!!)
-                false
-            } else {
-                val stateType = state.state as com.andmar.ui.state.StateType.Error
-                ImageSearchMainContent(
-                    input = input,
-                    onNewQuery = viewModel::onNewQuery,
-                    onSearch = viewModel::searchForImages,
-                    block = {
-                        ImageSearchErrorState(
-                            onReload = { viewModel.retry(stateType.retryTag) }
-                        )
-                    })
-                true
-            }
-        },
-        onEmpty = {
-            it.empty()
-        },
+
+    val imagesResult = viewModel.pagingData.collectAsLazyPagingItems()
+    ImageSearchMainContent(
+        input = input,
+        onNewQuery = viewModel::onNewQuery,
+        onSearch = viewModel::searchForImages,
+        content = {
+            LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Adaptive(160.dp), content = {
+                items(imagesResult.itemCount) { image ->
+                    ImageItem(image = imagesResult[image]!!, onImageClick = { })
+                }
+
+            })
+        }
     )
+
+//    val uiState = viewModel.uiState.collectAsState().value
+//    uiState.StateHandling(
+//        retryHandler = viewModel,
+//        content = { imagesResult ->
+//            ImageSearchMainContent(
+//                input = input,
+//                onNewQuery = viewModel::onNewQuery,
+//                onSearch = viewModel::searchForImages,
+//                block = {
+//                    ImageSearchList(
+//                        imagesResult = imagesResult,
+//                        onImageClick = { image ->
+//                            //TODO
+//                            navController.navigate("image_detail_screen/${image.id}")
+//                        }
+//                    )
+//                })
+//        },
+//        onError = { state, composableBuilder ->
+//            if (state.data != null) {
+//                composableBuilder.content(state.data!!)
+//                false
+//            } else {
+//                val stateType = state.state as com.andmar.ui.state.StateType.Error
+//                ImageSearchMainContent(
+//                    input = input,
+//                    onNewQuery = viewModel::onNewQuery,
+//                    onSearch = viewModel::searchForImages,
+//                    block = {
+//                        ImageSearchErrorState(
+//                            onReload = { viewModel.retry(stateType.retryTag) }
+//                        )
+//                    })
+//                true
+//            }
+//        },
+//        onEmpty = {
+//            it.empty()
+//        },
+//    )
 
 }
 
@@ -114,7 +130,7 @@ private fun ImageSearchMainContent(
     input: SearchScreenInput,
     onNewQuery: (String) -> Unit,
     onSearch: () -> Unit,
-    block: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         SearchBar(
@@ -122,7 +138,7 @@ private fun ImageSearchMainContent(
             onQueryChange = onNewQuery,
             onSearch = onSearch
         )
-        block()
+        content()
     }
 }
 
