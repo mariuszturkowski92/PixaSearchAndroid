@@ -5,10 +5,10 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class ImageQueryDB(
-    @PrimaryKey val query: String,
-    @ColumnInfo(name = "fetched_pages") val fetchedPages: Int,
-    @ColumnInfo(name = "total_results") val totalResults: Int,
+data class QueryDB(
+    @PrimaryKey()
+    val query: String,
+    val lastPage: Int,
     @ColumnInfo(
         name = "created_at",
         defaultValue = "CURRENT_TIMESTAMP"

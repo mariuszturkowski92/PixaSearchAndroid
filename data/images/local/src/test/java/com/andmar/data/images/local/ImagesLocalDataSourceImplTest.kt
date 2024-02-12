@@ -1,7 +1,5 @@
 package com.andmar.data.images.local
 
-import com.andmar.data.images.local.entity.ImageQueryDB
-import com.andmar.data.images.local.entity.ImageQueryWithImages
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk

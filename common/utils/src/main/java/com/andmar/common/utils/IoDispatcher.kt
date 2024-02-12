@@ -1,4 +1,4 @@
-package com.andmar.pixabaysearch.di
+package com.andmar.common.utils
 
 import dagger.Module
 import dagger.Provides
@@ -22,4 +22,5 @@ object DispatcherModule {
     @IoDispatcher
     @Provides
     fun provideIoDispatcher():CoroutineDispatcher = Dispatchers.IO
+
 }

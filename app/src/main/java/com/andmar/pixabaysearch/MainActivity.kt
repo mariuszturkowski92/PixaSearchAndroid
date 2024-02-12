@@ -47,7 +47,6 @@ class MainActivity : ComponentActivity() {
 internal fun Home() {
 
     val navController = rememberNavController()
-    val config = LocalConfiguration.current
 
     Scaffold { paddingValues ->
         AppNavigation(navController = navController, modifier = Modifier.padding(paddingValues))

@@ -2,16 +2,28 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6564bd8b30e21dbabf40dbb573de2288",
+    "identityHash": "9768a159507383bf2118a9e1935e3bd0",
     "entities": [
       {
-        "tableName": "ImageDB",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`imageId` INTEGER NOT NULL, `previewURL` TEXT NOT NULL, `previewWidth` INTEGER NOT NULL, `previewHeight` INTEGER NOT NULL, `largeImageURL` TEXT NOT NULL, `largeImageWidth` INTEGER NOT NULL, `largeImageHeight` INTEGER NOT NULL, `user` TEXT NOT NULL, `userImageURL` TEXT NOT NULL, `likes` INTEGER NOT NULL, `comments` INTEGER NOT NULL, `tags` TEXT NOT NULL, `userId` INTEGER NOT NULL, PRIMARY KEY(`imageId`))",
+        "tableName": "ImageWithQueryDB",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `imageId` INTEGER NOT NULL, `query` TEXT NOT NULL, `previewURL` TEXT NOT NULL, `previewWidth` INTEGER NOT NULL, `previewHeight` INTEGER NOT NULL, `largeImageURL` TEXT NOT NULL, `largeImageWidth` INTEGER NOT NULL, `largeImageHeight` INTEGER NOT NULL, `user` TEXT NOT NULL, `userImageURL` TEXT NOT NULL, `likes` INTEGER NOT NULL, `comments` INTEGER NOT NULL, `tags` TEXT NOT NULL, `userId` INTEGER NOT NULL)",
         "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
           {
             "fieldPath": "imageId",
             "columnName": "imageId",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "query",
+            "columnName": "query",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -88,17 +100,37 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": false,
+          "autoGenerate": true,
           "columnNames": [
-            "imageId"
+            "id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_ImageWithQueryDB_imageId_query",
+            "unique": true,
+            "columnNames": [
+              "imageId",
+              "query"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ImageWithQueryDB_imageId_query` ON `${TABLE_NAME}` (`imageId`, `query`)"
+          },
+          {
+            "name": "index_ImageWithQueryDB_query",
+            "unique": false,
+            "columnNames": [
+              "query"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ImageWithQueryDB_query` ON `${TABLE_NAME}` (`query`)"
+          }
+        ],
         "foreignKeys": []
       },
       {
-        "tableName": "ImageQueryDB",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`query` TEXT NOT NULL, `fetched_pages` INTEGER NOT NULL, `total_results` INTEGER NOT NULL, `created_at` INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP, `modified_at` INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(`query`))",
+        "tableName": "QueryDB",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`query` TEXT NOT NULL, `lastPage` INTEGER NOT NULL, `created_at` INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP, `modified_at` INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(`query`))",
         "fields": [
           {
             "fieldPath": "query",
@@ -107,14 +139,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "fetchedPages",
-            "columnName": "fetched_pages",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "totalResults",
-            "columnName": "total_results",
+            "fieldPath": "lastPage",
+            "columnName": "lastPage",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -141,49 +167,12 @@
         },
         "indices": [],
         "foreignKeys": []
-      },
-      {
-        "tableName": "ImageQueryImageCrossRef",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`query` TEXT NOT NULL, `imageId` INTEGER NOT NULL, PRIMARY KEY(`query`, `imageId`))",
-        "fields": [
-          {
-            "fieldPath": "query",
-            "columnName": "query",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "imageId",
-            "columnName": "imageId",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "query",
-            "imageId"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_ImageQueryImageCrossRef_query",
-            "unique": false,
-            "columnNames": [
-              "query"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_ImageQueryImageCrossRef_query` ON `${TABLE_NAME}` (`query`)"
-          }
-        ],
-        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6564bd8b30e21dbabf40dbb573de2288')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9768a159507383bf2118a9e1935e3bd0')"
     ]
   }
 }

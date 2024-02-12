@@ -2,11 +2,10 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
-    alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "com.andmar.common.utils"
+    namespace = "com.andmar.test"
     compileSdk = 34
 
     defaultConfig {
@@ -33,12 +32,13 @@ android {
 
 dependencies {
 
-    implementation(libs.core.ktx)
-    // corutines
+    implementation(project(":data:images:network"))
+    implementation(project(":data:images:local"))
+
+    implementation(libs.room.paging)
+    //coroutines
     implementation(libs.kotlinx.coroutines.core)
-    // hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

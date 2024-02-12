@@ -1,4 +1,4 @@
-package com.andmar.search.ui
+package com.andmar.search.ui.paging
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -6,8 +6,8 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.andmar.data.images.entity.ImagesResult
 import com.andmar.data.images.entity.PSImage
-import com.andmar.data.images.usecase.GetImagesUseCase
 import com.andmar.data.images.usecase.GetImagesWithPagingUseCase
+import com.andmar.search.ui.SearchScreenInput
 import com.andmar.ui.state.StateViewModel
 import com.andmar.ui.state.launchWithErrorHandling
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,9 +16,8 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-internal class ImageSearchViewModel @Inject constructor(
+internal class ImageSearchPagingViewModel @Inject constructor(
     val handle: SavedStateHandle,
-    private val getImagesUseCase: GetImagesUseCase,
     private val getImagesWithPagingUseCase: GetImagesWithPagingUseCase,
 ) : StateViewModel<ImagesResult>() {
 
@@ -31,7 +30,7 @@ internal class ImageSearchViewModel @Inject constructor(
         get() = _pagingData
 
     init {
-//        searchForImages()
+        searchForImages()
     }
 
     fun searchForImages() {
@@ -41,11 +40,6 @@ internal class ImageSearchViewModel @Inject constructor(
                     _pagingData.value = it
                 }
         }
-//        _uiState.launchWithErrorHandlingOn(viewModelScope, showLoading = true) {
-//            getImagesUseCase(_input.value.query, 1).collect {
-//                _uiState.success(it)
-//            }
-//        }
     }
 
     fun onNewQuery(newQuery: String) {

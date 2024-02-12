@@ -7,7 +7,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface ImagesRepository {
 
-    fun getImages(query: String, page: Int = 1): Flow<ImagesResult>
-
     fun getImagesWithPagingSource(query: String): Flow<PagingData<PSImage>>
 }
