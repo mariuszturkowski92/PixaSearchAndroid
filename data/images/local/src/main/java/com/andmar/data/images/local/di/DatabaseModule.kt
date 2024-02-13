@@ -26,7 +26,7 @@ class DatabaseModule {
 
     @Provides
     internal fun provideImageWithQueryDao(database: ImagesDatabase): ImageWithQueryDao =
-        database.ImageWithQueryDao()
+        database.imageWithQueryDao()
 
     @Provides
     internal fun provideQueryDao(database: ImagesDatabase): QueryDao = database.queryDao()

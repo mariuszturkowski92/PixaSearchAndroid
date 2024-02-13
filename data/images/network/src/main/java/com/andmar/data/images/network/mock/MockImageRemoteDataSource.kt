@@ -1,4 +1,4 @@
-package com.andmar.test
+package com.andmar.data.images.network.mock
 
 import com.andmar.data.images.network.ImagesRemoteDataSource
 import com.andmar.data.images.network.model.PSImagesResponseDTO

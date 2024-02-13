@@ -14,7 +14,7 @@ import com.andmar.data.images.local.entity.QueryDB
 )
 internal abstract class ImagesDatabase : RoomDatabase() {
 
-    abstract fun ImageWithQueryDao(): ImageWithQueryDao
+    abstract fun imageWithQueryDao(): ImageWithQueryDao
 
     abstract fun queryDao(): QueryDao
 

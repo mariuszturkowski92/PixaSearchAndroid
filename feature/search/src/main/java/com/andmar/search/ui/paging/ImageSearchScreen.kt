@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -62,47 +61,6 @@ internal fun ImageSearchPagingScreen(
         reloadData = viewModel::searchForImages,
         imagesResult = imagesResult,
     )
-
-//    val uiState = viewModel.uiState.collectAsState().value
-//    uiState.StateHandling(
-//        retryHandler = viewModel,
-//        content = { imagesResult ->
-//            ImageSearchMainContent(
-//                input = input,
-//                onNewQuery = viewModel::onNewQuery,
-//                onSearch = viewModel::searchForImages,
-//                block = {
-//                    ImageSearchList(
-//                        imagesResult = imagesResult,
-//                        onImageClick = { image ->
-//                            //TODO
-//                            navController.navigate("image_detail_screen/${image.id}")
-//                        }
-//                    )
-//                })
-//        },
-//        onError = { state, composableBuilder ->
-//            if (state.data != null) {
-//                composableBuilder.content(state.data!!)
-//                false
-//            } else {
-//                val stateType = state.state as com.andmar.ui.state.StateType.Error
-//                ImageSearchMainContent(
-//                    input = input,
-//                    onNewQuery = viewModel::onNewQuery,
-//                    onSearch = viewModel::searchForImages,
-//                    block = {
-//                        ImageSearchErrorState(
-//                            onReload = { viewModel.retry(stateType.retryTag) }
-//                        )
-//                    })
-//                true
-//            }
-//        },
-//        onEmpty = {
-//            it.empty()
-//        },
-//    )
 
 }
 
@@ -195,47 +153,38 @@ fun ImageItem(
     onImageClick: (PSImage) -> Unit = { },
 ) {
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize(),
-        color = Color.White,
-        shadowElevation = 4.dp
-    ) {
-        Box(modifier = Modifier.clickable(onClick = { onImageClick(image) })) {
-            val textColor = remember { mutableStateOf(Color.Black) }
 
-            AsyncImage(
-                model = image.thumbSource.url,
-                contentDescription = "Image thumbnail",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .aspectRatio(image.thumbSource.width.toFloat() / image.thumbSource.height),
-                contentScale = ContentScale.FillWidth,
-                onSuccess = { success ->
-                    val drawable = success.result.drawable
-//                    val palette = drawable.toBitmapOrNull(config = Bitmap.Config.ARGB_8888)?.let { Palette.from(it).generate() }
-//                    textColor.value = when {
-//                        palette?.darkVibrantSwatch != null -> Color.White
-//                        else -> Color.Black
-//                    }
-                },
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .clickable(onClick = { onImageClick(image) })
+    ) {
+        val textColor = remember { mutableStateOf(Color.Black) }
+
+        AsyncImage(
+            model = image.thumbSource.url,
+            contentDescription = "Image thumbnail",
+            modifier = Modifier
+                .fillMaxSize()
+                .aspectRatio(image.thumbSource.width.toFloat() / image.thumbSource.height),
+            contentScale = ContentScale.FillWidth,
+
             )
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .background(Color.White.copy(alpha = 0.8f), shape = RectangleShape)
-                    .padding(8.dp)
-            ) {
-                Text(
-                    text = image.username,
-                    style = TextStyle(fontWeight = FontWeight.Bold, color = textColor.value)
-                )
-                Text(
-                    text = image.tags.joinToString(", "),
-                    style = TextStyle(color = textColor.value)
-                )
-            }
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .background(Color.White.copy(alpha = 0.8f), shape = RectangleShape)
+                .padding(8.dp)
+        ) {
+            Text(
+                text = image.username,
+                style = TextStyle(fontWeight = FontWeight.Bold, color = textColor.value)
+            )
+            Text(
+                text = image.tags.joinToString(", "),
+                style = TextStyle(color = textColor.value)
+            )
         }
     }
+
 }
 

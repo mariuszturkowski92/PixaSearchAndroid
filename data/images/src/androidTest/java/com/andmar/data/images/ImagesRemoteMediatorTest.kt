@@ -1,12 +1,11 @@
 package com.andmar.data.images
 
 import androidx.paging.ExperimentalPagingApi
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.andmar.data.images.local.mock.TestImagesLocalDataSource
+import com.andmar.data.images.network.mock.ImagesFactory
+import com.andmar.data.images.network.mock.MockImageRemoteDataSource
 import com.andmar.data.images.network.model.PSImagesResponseDTO
-import com.andmar.test.ImagesFactory
-import com.andmar.test.MockImageRemoteDataSource
-import com.andmar.test.TestImagesLocalDataSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.After
 import org.junit.runner.RunWith
@@ -42,5 +41,8 @@ class PageKeyedRemoteMediatorTest {
         // Clear out posts after each test run.
         mockApi.clearPosts()
     }
+
+    // on refresh start from page 1 with correct query
+
 }
 

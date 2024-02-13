@@ -21,7 +21,7 @@ internal interface QueryDao {
     @Query("UPDATE QueryDB SET lastPage = :page, modified_at = CURRENT_TIMESTAMP WHERE `query` = :query")
     suspend fun updatePage(query: String, page: Int)
 
-    @Query("SELECT * FROM QueryDB ORDER BY modified_at LIMIT :limit OFFSET $MAX_QUERIES_CACHED")
+    @Query("SELECT * FROM QueryDB ORDER BY modified_at DESC LIMIT :limit OFFSET $MAX_QUERIES_CACHED")
     suspend fun selectOldest(limit: Int): List<QueryDB>
 
     @Query("SELECT COUNT(*) FROM QueryDB")

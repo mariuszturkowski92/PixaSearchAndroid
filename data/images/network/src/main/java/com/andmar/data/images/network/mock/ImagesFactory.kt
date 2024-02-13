@@ -1,7 +1,9 @@
-package com.andmar.test
+package com.andmar.data.images.network.mock
 
+import androidx.annotation.VisibleForTesting
 import com.andmar.data.images.network.model.PSImagesResponseDTO
 
+@VisibleForTesting
 class ImagesFactory {
     fun createImageRemoteResponse(size: Int): PSImagesResponseDTO {
         val hits = (0 until size).map {
@@ -19,7 +21,7 @@ class ImagesFactory {
                 previewHeight = it,
                 previewURL = "previewURL$it",
                 previewWidth = it,
-                tags = "tags$it",
+                tags = "tags$it, tags$it, tags$it",
                 type = "type$it",
                 user = "user$it",
                 userId = it,

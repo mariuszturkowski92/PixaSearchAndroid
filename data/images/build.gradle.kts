@@ -60,7 +60,6 @@ dependencies {
     //timber
     implementation(libs.timber)
 
-    androidTestImplementation(project(":data:images:test"))
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.compose.ui.test.junit4)
