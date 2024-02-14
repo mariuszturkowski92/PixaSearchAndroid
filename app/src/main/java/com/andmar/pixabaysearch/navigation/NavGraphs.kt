@@ -1,8 +1,8 @@
 package com.andmar.pixabaysearch.navigation
 
 
-import com.andmar.search.ui.destinations.ImageSearchScreenDestination
-import com.andmar.search.ui.searchDestinations
+import com.andmar.search.ui.paging.destinations.ImageSearchPagingScreenDestination
+import com.andmar.search.ui.paging.searchDestinations
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.NavGraphSpec
 
@@ -12,7 +12,7 @@ object NavGraphs {
     //stat's module NavGraph
     val images = object : NavGraphSpec {
         override val route = "images"
-        override val startRoute = ImageSearchScreenDestination
+        override val startRoute = ImageSearchPagingScreenDestination
         override val destinationsByRoute = searchDestinations
             .associateBy { it.route }
     }

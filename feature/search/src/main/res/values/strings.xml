@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_images_error_on_list_with_cached_data_loaded">An error occurred, you see cached data, use pull to refresh to reload</string>
+</resources>

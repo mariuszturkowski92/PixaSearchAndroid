@@ -1,5 +1,3 @@
-import java.util.Properties
-
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     alias(libs.plugins.androidLibrary)
@@ -39,6 +37,8 @@ android {
 dependencies {
 
     implementation(project(":data:images:network"))
+    implementation(project(":data:images:local"))
+    implementation(project(":common:utils"))
 
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
@@ -50,9 +50,17 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.moshi)
-    ksp(libs.moshi.codegen)
+
+    implementation(libs.paging.common.ktx)
+    //timber
+    implementation(libs.timber)
+
+
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.compose.ui.test.junit4)
 }

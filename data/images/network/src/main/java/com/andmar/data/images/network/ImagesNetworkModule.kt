@@ -13,8 +13,8 @@ object ImagesNetworkModule {
 
     @Singleton
     @Provides
-    fun provideNetworkDataSource( client: HttpClient): ImagesRemoteDataSource{
-        return ImagesRemoteDataSourceImpl(apiKey = BuildConfig.PIXABAY_API_KEY ,client )
+    fun provideNetworkDataSource(client: HttpClient): ImagesRemoteDataSource {
+        return ImagesRemoteDataSourceImpl(apiKey = BuildConfig.PIXABAY_API_KEY, client)
     }
 
 }

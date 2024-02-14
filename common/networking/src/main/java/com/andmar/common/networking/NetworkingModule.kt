@@ -11,6 +11,7 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import timber.log.Timber
 import javax.inject.Singleton
 
 @Module
@@ -25,6 +26,7 @@ object NetworkingModule {
 
     fun createHttpClient(enableLogging: Boolean): HttpClient {
         return HttpClient(OkHttp).config {
+            expectSuccess = true
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys = true
@@ -33,6 +35,11 @@ object NetworkingModule {
 
             install(Logging) {
                 level = LogLevel.ALL
+                this.logger = object : io.ktor.client.plugins.logging.Logger {
+                    override fun log(message: String) {
+                        Timber.d(message)
+                    }
+                }
             }
         }
     }
