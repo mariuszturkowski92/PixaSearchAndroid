@@ -79,13 +79,15 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.kotlinx.coroutines.core)
 
-//    implementation(platform(libs.koin.bom))
-//    implementation(libs.koin.androidx.compose)
 
     implementation(libs.compose.destinations)
     ksp(libs.compose.destinations.ksp)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockk.android)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.paging.testing)
+
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
 }

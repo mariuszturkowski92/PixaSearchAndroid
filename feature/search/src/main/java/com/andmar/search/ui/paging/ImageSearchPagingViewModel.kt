@@ -11,6 +11,7 @@ import com.andmar.search.ui.SearchScreenInput
 import com.andmar.ui.state.StateViewModel
 import com.andmar.ui.state.launchWithErrorHandling
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
@@ -26,7 +27,7 @@ internal class ImageSearchPagingViewModel @Inject constructor(
         get() = _input
 
     private val _pagingData: MutableStateFlow<PagingData<PSImage>> = MutableStateFlow(PagingData.empty())
-    val pagingData: StateFlow<PagingData<PSImage>>
+    val pagingData: Flow<PagingData<PSImage>>
         get() = _pagingData
 
     init {

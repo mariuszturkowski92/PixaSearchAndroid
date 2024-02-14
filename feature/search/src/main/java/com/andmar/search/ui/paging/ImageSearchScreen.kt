@@ -4,15 +4,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -27,19 +29,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
-import com.andmar.data.images.entity.ImagesResult
 import com.andmar.data.images.entity.PSImage
+import com.andmar.search.R
 import com.andmar.search.ui.PSImageProvider
 import com.andmar.search.ui.SearchScreenInput
 import com.andmar.search.ui.components.SearchBar
@@ -49,6 +53,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 @Composable
 internal fun ImageSearchPagingScreen(
     navController: NavController,
+    snackbarHostState: SnackbarHostState,
     viewModel: ImageSearchPagingViewModel = hiltViewModel(),
 ) {
     val input = viewModel.input.collectAsState().value
@@ -56,47 +61,29 @@ internal fun ImageSearchPagingScreen(
     val imagesResult = viewModel.pagingData.collectAsLazyPagingItems()
     ImageSearchMainContent(
         input = input,
+        imagesResult = imagesResult,
+        snackbarHostState = snackbarHostState,
         onNewQuery = viewModel::onNewQuery,
         onSearch = viewModel::searchForImages,
         reloadData = viewModel::searchForImages,
-        imagesResult = imagesResult,
     )
 
 }
 
-@Composable
-fun ImageSearchErrorState(onReload: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "An error occurred",
-            style = TextStyle(fontWeight = FontWeight.Bold)
-        )
-        Text(
-            text = "Please try again",
-            style = TextStyle(fontWeight = FontWeight.Bold)
-        )
-        Text(
-            text = "Reload",
-            style = TextStyle(fontWeight = FontWeight.Bold),
-            modifier = Modifier.clickable(onClick = onReload)
-        )
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ImageSearchMainContent(
     input: SearchScreenInput,
     imagesResult: LazyPagingItems<PSImage>,
+    snackbarHostState: SnackbarHostState,
     onNewQuery: (String) -> Unit,
     onSearch: () -> Unit,
     reloadData: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         SearchBar(
+            modifier = Modifier.zIndex(2f),
             query = input.query,
             onQueryChange = onNewQuery,
             onSearch = onSearch
@@ -112,37 +99,76 @@ private fun ImageSearchMainContent(
                 state.endRefresh()
             }
         }
-        Box(Modifier.nestedScroll(state.nestedScrollConnection)) {
-            LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Adaptive(160.dp), content = {
-                items(imagesResult.itemCount) { image ->
-                    imagesResult[image]?.let { ImageItem(image = it, onImageClick = { }) }
+        Box(
+            Modifier
+                .fillMaxSize()
+                .nestedScroll(state.nestedScrollConnection)
+        ) {
+            if (imagesResult.loadState.refresh is LoadState.Loading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (imagesResult.loadState.refresh is LoadState.Error && imagesResult.itemCount == 0) {
+                ImageSearchErrorState(onReload = { imagesResult.retry() })
+            } else {
+                if (imagesResult.loadState.refresh is LoadState.Error) {
+                    val errorMessage =
+                        stringResource(R.string.search_images_error_on_list_with_cached_data_loaded)
+                    LaunchedEffect(imagesResult.loadState.refresh) {
+                        snackbarHostState.showSnackbar(errorMessage)
+                    }
                 }
-
-            })
+                LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Adaptive(160.dp), content = {
+                    items(imagesResult.itemCount) { image ->
+                        imagesResult[image]?.let { ImageItem(image = it, onImageClick = { }) }
+                    }
+                    item(span = StaggeredGridItemSpan.FullLine) {
+                        if (imagesResult.loadState.append is LoadState.Loading) {
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .padding(16.dp)
+                                )
+                            }
+                        } else if (imagesResult.loadState.append is LoadState.Error) {
+                            ImageSearchErrorState(onReload = { imagesResult.retry() })
+                        }
+                    }
+                })
+            }
             PullToRefreshContainer(
-                modifier = Modifier.align(Alignment.TopCenter),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .zIndex(0.1f),
                 state = state,
             )
+
         }
     }
 
 }
 
 @Composable
-private fun ColumnScope.ImageSearchList(
-    imagesResult: ImagesResult,
-    onImageClick: (PSImage) -> Unit,
-) {
-    ImageList(modifier = Modifier.fillMaxWidth(), images = imagesResult.images)
-}
-
-@Composable
-fun ImageList(images: List<PSImage>, modifier: Modifier = Modifier, onImageClick: (PSImage) -> Unit = { }) {
-    LazyVerticalStaggeredGrid(modifier = modifier, columns = StaggeredGridCells.Fixed(2), content = {
-        items(images) { image ->
-            ImageItem(image, onImageClick)
+private fun ImageSearchErrorState(onReload: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "An error occurred",
+            style = TextStyle(fontWeight = FontWeight.Bold)
+        )
+        Text(
+            text = "Please try again",
+            style = TextStyle(fontWeight = FontWeight.Bold)
+        )
+        Button(onClick = onReload) {
+            Text(
+                text = "Reload",
+                style = TextStyle(fontWeight = FontWeight.Bold),
+            )
         }
-    })
+    }
 }
 
 
@@ -152,11 +178,10 @@ fun ImageItem(
     @PreviewParameter(PSImageProvider::class) image: PSImage,
     onImageClick: (PSImage) -> Unit = { },
 ) {
-
-
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .clickable(onClick = { onImageClick(image) })
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(onClick = { onImageClick(image) })
     ) {
         val textColor = remember { mutableStateOf(Color.Black) }
 

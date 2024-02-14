@@ -27,10 +27,6 @@ internal fun SearchBar(
             value = query,
             onValueChange = onQueryChange,
             singleLine = true,
-//            colors = TextFieldDefaults.colors(
-//                backgroundColor = MaterialTheme.colorScheme.surface,
-//                contentColor = MaterialTheme.colorScheme.onSurface,
-//            ),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Search,

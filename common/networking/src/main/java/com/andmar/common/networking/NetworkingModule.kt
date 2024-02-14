@@ -26,6 +26,7 @@ object NetworkingModule {
 
     fun createHttpClient(enableLogging: Boolean): HttpClient {
         return HttpClient(OkHttp).config {
+            expectSuccess = true
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys = true

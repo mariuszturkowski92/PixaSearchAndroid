@@ -15,7 +15,7 @@ fun CoroutineScope.launchWithErrorHandling(
     },
     block: suspend CoroutineScope.() -> Unit,
 ): Job {
-    return this.launch {
+    return this.launch(context) {
         try {
             block()
         } catch (e: Exception) {
@@ -26,6 +26,7 @@ fun CoroutineScope.launchWithErrorHandling(
 
 fun <T> MutableStateFlow<State<T>>.launchWithErrorHandlingOn(
     coroutineScope: CoroutineScope,
+    context: CoroutineContext = EmptyCoroutineContext,
     showLoading: Boolean = true,
     retryTag: String? = null,
     errorDialogType: ErrorDialogType = ErrorDialogType.CLOSE,
@@ -34,7 +35,7 @@ fun <T> MutableStateFlow<State<T>>.launchWithErrorHandlingOn(
         this.error(it, retryTag, errorDialogType)
     },
     block: suspend CoroutineScope.() -> Unit,
-) = coroutineScope.launchWithErrorHandling(onError = onError) {
+) = coroutineScope.launchWithErrorHandling(context = context, onError = onError) {
     if (showLoading)
         loading()
     block()

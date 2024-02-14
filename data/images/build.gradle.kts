@@ -51,14 +51,14 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.core)
 
+    implementation(libs.paging.common.ktx)
+    //timber
+    implementation(libs.timber)
+
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
-
-    implementation(libs.paging.runtime.ktx)
-
-    //timber
-    implementation(libs.timber)
 
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
