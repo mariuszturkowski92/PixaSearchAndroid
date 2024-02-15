@@ -22,4 +22,13 @@ class ImagesRemoteDataSourceImpl @Inject constructor(
             }
         }.body()
     }
+
+    override suspend fun getImageWithId(id: Int): PSImagesResponseDTO {
+        return client.get(ImagesRemoteDataSource.BASE_URL) {
+            url {
+                parameters.append("key", apiKey)
+                parameters.append("id", id.toString())
+            }
+        }.body()
+    }
 }

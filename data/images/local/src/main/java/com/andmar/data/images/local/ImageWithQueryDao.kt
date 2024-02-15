@@ -18,6 +18,8 @@ internal interface ImageWithQueryDao {
 
     @Query("SELECT * FROM ImageWithQueryDB WHERE imageId = :id")
     suspend fun getById(id: Int): ImageWithQueryDB
+    @Query("SELECT EXISTS(SELECT * FROM ImageWithQueryDB WHERE imageId = :id)")
+    suspend fun isImageExists(id: Int): Boolean
 
     @Query("SELECT * FROM ImageWithQueryDB WHERE `query` = :query")
     fun getByQueryFlow(query: String): Flow<List<ImageWithQueryDB>>
@@ -43,4 +45,7 @@ internal interface ImageWithQueryDao {
 
     @Query("SELECT COUNT(*) FROM ImageWithQueryDB WHERE `query` = :query")
     suspend fun countWith(query: String): Int
+
+    @Query("SELECT * FROM ImageWithQueryDB WHERE imageId = :id")
+    fun getByIdFlow(id: Int): Flow<ImageWithQueryDB>
 }

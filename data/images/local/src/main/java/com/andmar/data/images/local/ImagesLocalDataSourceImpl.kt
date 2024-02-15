@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.room.withTransaction
 import com.andmar.data.images.local.entity.ImageWithQueryDB
 import com.andmar.data.images.local.entity.QueryDB
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,6 +26,14 @@ internal class ImagesLocalDataSourceImpl @Inject constructor(
                 deleteAllImagesWithQuery(it)
             }
         }
+    }
+
+    override suspend fun isImageExists(id: Int): Boolean {
+        return isImageExists(id)
+    }
+
+    override fun getImageWithId(id: Int): Flow<ImageWithQueryDB> {
+        return imageWithQueryDao.getByIdFlow(id)
     }
 
     private suspend fun deleteAllImagesWithQuery(queryDB: QueryDB) {

@@ -4,6 +4,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.paging.PagingSource
 import com.andmar.data.images.local.ImagesLocalDataSource
 import com.andmar.data.images.local.entity.ImageWithQueryDB
+import kotlinx.coroutines.flow.Flow
 
 
 @VisibleForTesting
@@ -32,6 +33,14 @@ class TestImagesLocalDataSource : ImagesLocalDataSource {
 
 
     override suspend fun deleteOldestIfCountExceedCacheLimit() {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun isImageExists(id: Int): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun getImageWithId(id: Int): Flow<ImageWithQueryDB> {
         TODO("Not yet implemented")
     }
 

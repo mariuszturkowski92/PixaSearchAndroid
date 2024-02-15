@@ -43,7 +43,12 @@ internal class ImagesRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getImageWithId(id: Int, forceFromRemote: Boolean): Flow<PSImage> {
-        return imagesLocalDataSource.getImageWithId(id).map { Mapper.mapFromImageDBToPSImage(it) }
+    override suspend fun getImageWithId(id: Int, forceFromRemote: Boolean): Flow<PSImage> {
+        //TODO implement logic to get image if there is nothing in local data source
+        if (forceFromRemote) {
+            imagesRemoteDataSource.getImageWithId(id)
+        }
+        return imagesLocalDataSource.getImageWithId(id).map { Mapper.mapFromImageWithQueryDBToPSImage(it) }
+
     }
 }

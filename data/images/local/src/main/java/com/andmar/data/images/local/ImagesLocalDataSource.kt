@@ -41,6 +41,8 @@ interface ImagesLocalDataSource {
      * cache limit is defined in [MAX_QUERIES_CACHED]
      */
     suspend fun deleteOldestIfCountExceedCacheLimit()
+
+    suspend fun isImageExists(id: Int): Boolean
     fun getImageWithId(id: Int): Flow<ImageWithQueryDB>
 
 }

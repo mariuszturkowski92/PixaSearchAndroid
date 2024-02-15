@@ -15,4 +15,5 @@ interface ImagesRemoteDataSource {
      * @param maxPageSize the maximum page size
      */
     suspend fun getImages(query: String, page: Int, maxPageSize: Int): PSImagesResponseDTO
+    suspend fun getImageWithId(id: Int): PSImagesResponseDTO
 }
