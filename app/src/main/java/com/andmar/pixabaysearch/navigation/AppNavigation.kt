@@ -3,8 +3,10 @@ package com.andmar.transaction.navigation
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.andmar.pixabaysearch.navigation.AppNavigatorImpl
 import com.andmar.pixabaysearch.navigation.NavGraphs
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
@@ -21,6 +23,7 @@ internal fun AppNavigation(
     snackbarHostState: SnackbarHostState,
 ) {
     //pass your enter/exit transitions here
+    val appNavigator = remember { AppNavigatorImpl(navController) }
 
     val navHostEngine = rememberAnimatedNavHostEngine(
         rootDefaultAnimations = RootNavGraphDefaultAnimations(
@@ -46,6 +49,7 @@ internal fun AppNavigation(
         modifier = modifier,
         dependenciesContainerBuilder = {
             dependency(snackbarHostState)
+            dependency(appNavigator)
         }
     )
 }

@@ -25,6 +25,7 @@ data class ImageWithQueryDB(
     val userImageURL: String,
     val likes: Int,
     val comments: Int,
+    val downloads: Int,
     val tags: String,
     val userId: Int,
 )

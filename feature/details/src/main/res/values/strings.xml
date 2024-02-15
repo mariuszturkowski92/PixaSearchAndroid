@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="image_details_full_screen_error_title">Ups...</string>
+    <string name="image_details_full_screen_error_default_message">An Error has occurd</string>
+    <string name="image_details_full_screen_error_retry_button">Retry</string>
+</resources>

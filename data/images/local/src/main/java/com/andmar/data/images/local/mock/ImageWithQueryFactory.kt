@@ -25,7 +25,8 @@ class ImageWithQueryFactory {
                 likes = imageId,
                 comments = imageId,
                 tags = "testTag$imageId",
-                userId = imageId
+                userId = imageId,
+                downloads = 23
             )
         }.apply {
             lastImageId += numberOfImages

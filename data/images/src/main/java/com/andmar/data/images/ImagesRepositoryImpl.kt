@@ -42,4 +42,8 @@ internal class ImagesRepositoryImpl @Inject constructor(
             pagingData.map { Mapper.mapFromImageWithQueryDBToPSImage(it) }
         }
     }
+
+    override fun getImageWithId(id: Int, forceFromRemote: Boolean): Flow<PSImage> {
+        return imagesLocalDataSource.getImageWithId(id).map { Mapper.mapFromImageDBToPSImage(it) }
+    }
 }

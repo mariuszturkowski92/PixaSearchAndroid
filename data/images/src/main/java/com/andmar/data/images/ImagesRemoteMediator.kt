@@ -50,7 +50,7 @@ class ImagesRemoteMediator(
 
                 if (loadType == LoadType.REFRESH) {
                     imagesLocalDataSource.refreshImagesWithQuery(
-                        Mapper.mapFromPSImagesResponseDTOToImagesWithQeryDB(query, response)
+                        Mapper.mapFromPSImagesResponseDTOToImagesWithQueryDB(query, response)
                     )
                 }
 
@@ -58,7 +58,7 @@ class ImagesRemoteMediator(
                 // current PagingData, allowing Paging to present the updates
                 // in the DB.
                 imagesLocalDataSource.updateExistingQueryWIthImages(
-                    Mapper.mapFromPSImagesResponseDTOToImagesWithQeryDB(query, response), page
+                    Mapper.mapFromPSImagesResponseDTOToImagesWithQueryDB(query, response), page
                 )
 
                 try {

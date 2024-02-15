@@ -37,11 +37,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
+import com.andmar.common.navigation.AppNavigator
 import com.andmar.data.images.entity.PSImage
 import com.andmar.search.R
 import com.andmar.search.ui.PSImageProvider
@@ -52,7 +52,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 @Destination
 @Composable
 internal fun ImageSearchPagingScreen(
-    navController: NavController,
+    appNavigator: AppNavigator,
     snackbarHostState: SnackbarHostState,
     viewModel: ImageSearchPagingViewModel = hiltViewModel(),
 ) {
@@ -66,6 +66,9 @@ internal fun ImageSearchPagingScreen(
         onNewQuery = viewModel::onNewQuery,
         onSearch = viewModel::searchForImages,
         reloadData = viewModel::searchForImages,
+        onImageClick = { image ->
+            appNavigator.navigateToImageDetails(image.id)
+        }
     )
 
 }
@@ -80,6 +83,7 @@ private fun ImageSearchMainContent(
     onNewQuery: (String) -> Unit,
     onSearch: () -> Unit,
     reloadData: () -> Unit,
+    onImageClick: (PSImage) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         SearchBar(
@@ -118,7 +122,7 @@ private fun ImageSearchMainContent(
                 }
                 LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Adaptive(160.dp), content = {
                     items(imagesResult.itemCount) { image ->
-                        imagesResult[image]?.let { ImageItem(image = it, onImageClick = { }) }
+                        imagesResult[image]?.let { ImageItem(image = it, onImageClick = onImageClick) }
                     }
                     item(span = StaggeredGridItemSpan.FullLine) {
                         if (imagesResult.loadState.append is LoadState.Loading) {

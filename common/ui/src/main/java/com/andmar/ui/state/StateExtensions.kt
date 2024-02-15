@@ -14,7 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.andmar.common.navigation.CoreNavigator
 import com.andmar.ui.R
 
 
@@ -36,9 +35,9 @@ fun <T> State<T>.StateHandling(
             modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
         ) {
             if (data != null) {
-                composableBuilder.content(data)
+                cb.content(data)
             }
-            composableBuilder.loader(data)
+            cb.loader(data)
         }
     },
     /**
@@ -47,7 +46,7 @@ fun <T> State<T>.StateHandling(
      */
     onError: @Composable ((State<T>, composableBuilder: StateComposableBuilder<T>) -> Boolean) = { state, cb ->
         state.data?.let {
-            composableBuilder.content(state.data)
+            cb.content(it)
         }
         false
     },

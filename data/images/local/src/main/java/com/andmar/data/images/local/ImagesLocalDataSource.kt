@@ -2,6 +2,7 @@ package com.andmar.data.images.local
 
 import androidx.paging.PagingSource
 import com.andmar.data.images.local.entity.ImageWithQueryDB
+import kotlinx.coroutines.flow.Flow
 
 interface ImagesLocalDataSource {
 
@@ -40,5 +41,6 @@ interface ImagesLocalDataSource {
      * cache limit is defined in [MAX_QUERIES_CACHED]
      */
     suspend fun deleteOldestIfCountExceedCacheLimit()
+    fun getImageWithId(id: Int): Flow<ImageWithQueryDB>
 
 }

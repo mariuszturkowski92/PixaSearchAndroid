@@ -7,7 +7,7 @@ import com.andmar.data.images.network.model.PSImagesResponseDTO
 
 object Mapper {
 
-    fun mapFromPSImagesResponseDTOToImagesWithQeryDB(
+    fun mapFromPSImagesResponseDTOToImagesWithQueryDB(
         query: String,
         response: PSImagesResponseDTO,
     ): List<ImageWithQueryDB> {
@@ -32,7 +32,8 @@ object Mapper {
             likes = it.likes,
             comments = it.comments,
             tags = it.tags,
-            userId = it.userId
+            userId = it.userId,
+            downloads = it.downloads
         )
     }
 
@@ -45,7 +46,15 @@ object Mapper {
                 imageWithQueryDB.previewWidth
             ),
             username = imageWithQueryDB.user,
-            tags = imageWithQueryDB.tags.split(",")
+            tags = imageWithQueryDB.tags.split(","),
+            likes = imageWithQueryDB.likes,
+            comments = imageWithQueryDB.comments,
+            downloads = imageWithQueryDB.downloads,
+            largeImage = ImageData(
+                imageWithQueryDB.largeImageURL,
+                imageWithQueryDB.largeImageHeight,
+                imageWithQueryDB.largeImageWidth
+            )
         )
     }
 }
