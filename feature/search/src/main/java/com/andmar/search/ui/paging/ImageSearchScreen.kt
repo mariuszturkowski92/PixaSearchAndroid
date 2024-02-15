@@ -84,8 +84,9 @@ private fun ImageSearchMainContent(
     onSearch: () -> Unit,
     reloadData: () -> Unit,
     onImageClick: (PSImage) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         SearchBar(
             modifier = Modifier.zIndex(2f),
             query = input.query,

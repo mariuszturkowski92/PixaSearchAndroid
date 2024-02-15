@@ -5,7 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -30,8 +34,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        super.onCreate(savedInstanceState)
         setContent {
             PixabaySearchTheme {
                 Home()
@@ -47,9 +51,16 @@ internal fun Home() {
     val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
+        contentWindowInsets = WindowInsets.statusBars,
+        modifier = Modifier
+            .fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
-        AppNavigation(navController = navController, modifier = Modifier.padding(paddingValues), snackbarHostState = snackbarHostState)
+        AppNavigation(
+            navController = navController,
+            modifier = Modifier.padding(paddingValues),
+            snackbarHostState = snackbarHostState
+        )
     }
 
 }
