@@ -9,12 +9,13 @@ import com.andmar.ui.state.launchWithErrorHandling
 import com.andmar.ui.state.launchWithErrorHandlingOn
 import com.andmar.ui.state.success
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 @HiltViewModel
-class ImageDetailViewModel @Inject constructor(
-    val handle: SavedStateHandle,
-    val getImageWithId: GetImageWithIdUseCase,
+class ImageDetailsViewModel @Inject constructor(
+    private val handle: SavedStateHandle,
+    private val getImageWithId: GetImageWithIdUseCase,
 ) : StateViewModel<PSImage>() {
 
 
@@ -42,8 +43,8 @@ class ImageDetailViewModel @Inject constructor(
         }
     }
 
-    override fun retry(retryTag: String?) {
-        if (retryTag == GET_IMAGE_RETRY_TAG) {
+    override fun retry(tag: String?) {
+        if (tag == GET_IMAGE_RETRY_TAG) {
             refresh()
         }
     }

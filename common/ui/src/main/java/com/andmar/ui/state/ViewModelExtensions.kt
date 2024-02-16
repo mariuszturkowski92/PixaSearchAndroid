@@ -24,7 +24,7 @@ fun CoroutineScope.launchWithErrorHandling(
     }
 }
 
-fun <T> MutableStateFlow<State<T>>.launchWithErrorHandlingOn(
+fun <T> MutableStateFlow<UiState<T>>.launchWithErrorHandlingOn(
     coroutineScope: CoroutineScope,
     context: CoroutineContext = EmptyCoroutineContext,
     showLoading: Boolean = true,

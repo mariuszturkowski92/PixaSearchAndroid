@@ -20,5 +20,5 @@ interface RetryHandler {
     /**
      * Called if dialog is dismissed
      */
-    fun <T> onDismissErrorDialog(state: State<T>?)
+    fun <T> onDismissErrorDialog(state: UiState<T>?)
 }

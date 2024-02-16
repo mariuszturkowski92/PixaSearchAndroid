@@ -17,7 +17,7 @@ internal interface ImageWithQueryDao {
     suspend fun getAll(): List<ImageWithQueryDB>
 
     @Query("SELECT * FROM ImageWithQueryDB WHERE imageId = :id")
-    suspend fun getById(id: Int): ImageWithQueryDB
+    suspend fun getById(id: Long): ImageWithQueryDB?
     @Query("SELECT EXISTS(SELECT * FROM ImageWithQueryDB WHERE imageId = :id)")
     suspend fun isImageExists(id: Int): Boolean
 

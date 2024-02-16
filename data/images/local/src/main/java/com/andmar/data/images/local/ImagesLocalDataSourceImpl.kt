@@ -15,8 +15,7 @@ internal class ImagesLocalDataSourceImpl @Inject constructor(
     private val database: ImagesDatabase,
     private val imageWithQueryDao: ImageWithQueryDao,
     private val queryDao: QueryDao,
-) :
-    ImagesLocalDataSource {
+) : ImagesLocalDataSource {
 
     override suspend fun deleteOldestIfCountExceedCacheLimit() {
         val count = queryDao.count()
@@ -29,18 +28,25 @@ internal class ImagesLocalDataSourceImpl @Inject constructor(
     }
 
     override suspend fun isImageExists(id: Int): Boolean {
-        return isImageExists(id)
+        return imageWithQueryDao.isImageExists(id)
     }
 
     override fun getImageWithId(id: Int): Flow<ImageWithQueryDB> {
         return imageWithQueryDao.getByIdFlow(id)
     }
 
-    private suspend fun deleteAllImagesWithQuery(queryDB: QueryDB) {
-        database.withTransaction {
-            imageWithQueryDao.deleteAllWithQuery(queryDB.query)
-            queryDao.deleteQueryByParam(queryDB.query)
+    override suspend fun updateSingleImage(imageWithQueryDB: ImageWithQueryDB) {
+        imageWithQueryDB.id?.let {
+            val currentImageWithQuery = imageWithQueryDao.getById(it)
+            if (currentImageWithQuery == null) {
+                imageWithQueryDao.insert(imageWithQueryDB)
+            } else {
+                imageWithQueryDao.update(imageWithQueryDB.copy(query = currentImageWithQuery.query))
+            }
+        } ?: run {
+            imageWithQueryDao.insert(imageWithQueryDB)
         }
+
     }
 
     override fun getImagesWithQueryPagingSource(query: String): PagingSource<Int, ImageWithQueryDB> {
@@ -77,4 +83,10 @@ internal class ImagesLocalDataSourceImpl @Inject constructor(
         return queryDao.getQueryByParam(query)?.lastPage ?: 0
     }
 
+    private suspend fun deleteAllImagesWithQuery(queryDB: QueryDB) {
+        database.withTransaction {
+            imageWithQueryDao.deleteAllWithQuery(queryDB.query)
+            queryDao.deleteQueryByParam(queryDB.query)
+        }
+    }
 }

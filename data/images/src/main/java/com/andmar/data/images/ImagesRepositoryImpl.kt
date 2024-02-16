@@ -45,8 +45,17 @@ internal class ImagesRepositoryImpl @Inject constructor(
 
     override suspend fun getImageWithId(id: Int, forceFromRemote: Boolean): Flow<PSImage> {
         //TODO implement logic to get image if there is nothing in local data source
-        if (forceFromRemote) {
-            imagesRemoteDataSource.getImageWithId(id)
+        if (forceFromRemote || !imagesLocalDataSource.isImageExists(id)) {
+            val newImageResponse = imagesRemoteDataSource.getImageWithId(id)
+            val imageWithQueryDB = Mapper.mapFromPSImagesResponseDTOToImagesWithQueryDB(
+                "",
+                newImageResponse
+            ).firstOrNull()
+            if (imageWithQueryDB != null) {
+                imagesLocalDataSource.updateSingleImage(imageWithQueryDB)
+            } else {
+                throw Exception("Image not found")
+            }
         }
         return imagesLocalDataSource.getImageWithId(id).map { Mapper.mapFromImageWithQueryDBToPSImage(it) }
 

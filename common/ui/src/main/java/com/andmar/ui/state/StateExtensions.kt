@@ -18,7 +18,7 @@ import com.andmar.ui.R
 
 
 @Composable
-fun <T> State<T>.StateHandling(
+fun <T> UiState<T>.StateHandling(
     retryHandler: RetryHandler?,
     content: @Composable (T) -> Unit = {},
     composableBuilder: StateComposableBuilder<T> = remember {
@@ -44,7 +44,7 @@ fun <T> State<T>.StateHandling(
      * Called when an error is received. If this returns true, the error will be considered handled and will not be shown
      * @return true if the error was handled, false otherwise
      */
-    onError: @Composable ((State<T>, composableBuilder: StateComposableBuilder<T>) -> Boolean) = { state, cb ->
+    onError: @Composable ((UiState<T>, composableBuilder: StateComposableBuilder<T>) -> Boolean) = { state, cb ->
         state.data?.let {
             cb.content(it)
         }
@@ -85,7 +85,7 @@ open class StateComposableBuilder<T>(
         }
     },
     val empty: @Composable () -> Unit = {},
-    val error: @Composable (State<T>) -> Unit = { state ->
+    val error: @Composable (UiState<T>) -> Unit = { state ->
         AlertDialog(
             onDismissRequest = {
                 retryHandler?.onDismissErrorDialog(state)

@@ -44,5 +44,6 @@ interface ImagesLocalDataSource {
 
     suspend fun isImageExists(id: Int): Boolean
     fun getImageWithId(id: Int): Flow<ImageWithQueryDB>
+    suspend fun updateSingleImage(imageWithQueryDB: ImageWithQueryDB)
 
 }

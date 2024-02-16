@@ -2,18 +2,18 @@ package com.andmar.ui.state
 
 import kotlinx.coroutines.flow.MutableStateFlow
 
-data class State<T>(
+data class UiState<T>(
     val data: T? = null,
     val state: StateType = StateType.None,
 ) {
     companion object {
-        fun <T> none(): State<T> = State()
+        fun <T> none(): UiState<T> = UiState()
     }
 
-    fun loading(): State<T> = copy(state = StateType.Loading)
-    fun success(): State<T> = copy(state = StateType.Success)
-    fun success(data: T): State<T> = copy(data = data, state = StateType.Success)
-    fun error(throwable: Throwable, retryTag: String?, errorDialogType: ErrorDialogType): State<T> =
+    fun loading(): UiState<T> = copy(state = StateType.Loading)
+    fun success(): UiState<T> = copy(state = StateType.Success)
+    fun success(data: T): UiState<T> = copy(data = data, state = StateType.Success)
+    fun error(throwable: Throwable, retryTag: String?, errorDialogType: ErrorDialogType): UiState<T> =
         copy(
             state = StateType.Error(
                 throwable,
@@ -23,18 +23,18 @@ data class State<T>(
             )
         )
 
-    fun none(): State<T> = copy(state = StateType.None)
+    fun none(): UiState<T> = copy(state = StateType.None)
 }
 
-fun <T> MutableStateFlow<State<T>>.loading() {
+fun <T> MutableStateFlow<UiState<T>>.loading() {
     this.value = value.loading()
 }
 
-fun <T> MutableStateFlow<State<T>>.success(data: T) {
+fun <T> MutableStateFlow<UiState<T>>.success(data: T) {
     this.value = value.success(data)
 }
 
-fun <T> MutableStateFlow<State<T>>.error(
+fun <T> MutableStateFlow<UiState<T>>.error(
     throwable: Throwable,
     retryTag: String?,
     errorDialogType: ErrorDialogType,
@@ -42,7 +42,7 @@ fun <T> MutableStateFlow<State<T>>.error(
     this.value = value.error(throwable, retryTag, errorDialogType)
 }
 
-fun <T> MutableStateFlow<State<T>>.none() {
+fun <T> MutableStateFlow<UiState<T>>.none() {
     this.value = value.none()
 }
 

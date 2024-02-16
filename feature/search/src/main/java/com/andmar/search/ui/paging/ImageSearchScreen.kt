@@ -122,7 +122,9 @@ private fun ImageSearchMainContent(
                     }
                 }
                 LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Adaptive(160.dp), content = {
-                    items(imagesResult.itemCount) { image ->
+                    items(
+                        imagesResult.itemCount,
+                        key = { index -> imagesResult[index]?.id ?: index }) { image ->
                         imagesResult[image]?.let { ImageItem(image = it, onImageClick = onImageClick) }
                     }
                     item(span = StaggeredGridItemSpan.FullLine) {

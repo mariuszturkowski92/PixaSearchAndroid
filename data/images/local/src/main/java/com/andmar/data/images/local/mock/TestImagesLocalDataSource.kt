@@ -44,5 +44,9 @@ class TestImagesLocalDataSource : ImagesLocalDataSource {
         TODO("Not yet implemented")
     }
 
+    override suspend fun updateSingleImage(imageWithQueryDB: ImageWithQueryDB) {
+        TODO("Not yet implemented")
+    }
+
 
 }
