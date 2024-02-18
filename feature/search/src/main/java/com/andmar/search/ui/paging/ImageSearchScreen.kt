@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import com.andmar.common.navigation.AppNavigator
 import com.andmar.data.images.entity.PSImage
@@ -48,6 +50,7 @@ import com.andmar.search.ui.PSImageProvider
 import com.andmar.search.ui.SearchScreenInput
 import com.andmar.search.ui.components.SearchBar
 import com.ramcosta.composedestinations.annotation.Destination
+import timber.log.Timber
 
 @Destination
 @Composable
@@ -67,12 +70,30 @@ internal fun ImageSearchPagingScreen(
         onSearch = viewModel::searchForImages,
         reloadData = viewModel::searchForImages,
         onImageClick = { image ->
-            appNavigator.navigateToImageDetails(image.id)
+            viewModel.onImageClick(image)
         }
     )
 
-}
+    if (input.showDialog.isPresent) {
+        ConfirmDetailsOpenDialog(
+            input.showDialog.get(),
+            viewModel::onConfirmImageOpen,
+            viewModel::onDismissImageOpenDialog
+        )
+    }
 
+    LaunchedEffect(viewModel.events) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is ImageSearchAction.OpenImageDetails -> {
+                    appNavigator.navigateToImageDetails(event.image.id)
+                }
+            }
+
+        }
+    }
+
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,16 +115,23 @@ private fun ImageSearchMainContent(
             onSearch = onSearch
         )
         val state = rememberPullToRefreshState()
-        if (state.isRefreshing) {
-            LaunchedEffect(state.isRefreshing) {
-                reloadData()
-            }
-        }
         if (imagesResult.loadState.refresh is LoadState.NotLoading) {
             LaunchedEffect(imagesResult.loadState) {
                 state.endRefresh()
             }
         }
+        if (state.isRefreshing) {
+            LaunchedEffect(state.isRefreshing) {
+                reloadData()
+            }
+        }
+        val lazyStaggeredGridState = rememberLazyStaggeredGridState()
+
+        LaunchedEffect(imagesResult.itemCount) {
+            Timber.d("ImageSearchMainContent: imagesResult.loadState.refresh=${imagesResult.loadState.refresh}")
+            Timber.d("ImageSearchMainContent size: ${imagesResult.itemCount}")
+        }
+
         Box(
             Modifier
                 .fillMaxSize()
@@ -121,26 +149,29 @@ private fun ImageSearchMainContent(
                         snackbarHostState.showSnackbar(errorMessage)
                     }
                 }
-                LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Adaptive(160.dp), content = {
-                    items(
-                        imagesResult.itemCount,
-                        key = { index -> imagesResult[index]?.id ?: index }) { image ->
-                        imagesResult[image]?.let { ImageItem(image = it, onImageClick = onImageClick) }
-                    }
-                    item(span = StaggeredGridItemSpan.FullLine) {
-                        if (imagesResult.loadState.append is LoadState.Loading) {
-                            Box(modifier = Modifier.fillMaxWidth()) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .padding(16.dp)
-                                )
-                            }
-                        } else if (imagesResult.loadState.append is LoadState.Error) {
-                            ImageSearchErrorState(onReload = { imagesResult.retry() })
+                LazyVerticalStaggeredGrid(
+                    columns = StaggeredGridCells.Adaptive(160.dp),
+                    state = lazyStaggeredGridState,
+                    content = {
+                        items(
+                            imagesResult.itemCount,
+                            key = imagesResult.itemKey { it.id }) { image ->
+                            imagesResult[image]?.let { ImageItem(image = it, onImageClick = onImageClick) }
                         }
-                    }
-                })
+                        item(span = StaggeredGridItemSpan.FullLine) {
+                            if (imagesResult.loadState.append is LoadState.Loading) {
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .padding(16.dp)
+                                    )
+                                }
+                            } else if (imagesResult.loadState.append is LoadState.Error) {
+                                ImageSearchErrorState(onReload = { imagesResult.retry() })
+                            }
+                        }
+                    })
             }
             PullToRefreshContainer(
                 modifier = Modifier
@@ -153,6 +184,7 @@ private fun ImageSearchMainContent(
     }
 
 }
+
 
 @Composable
 private fun ImageSearchErrorState(onReload: () -> Unit) {
@@ -181,7 +213,7 @@ private fun ImageSearchErrorState(onReload: () -> Unit) {
 
 @Composable
 @Preview
-fun ImageItem(
+private fun ImageItem(
     @PreviewParameter(PSImageProvider::class) image: PSImage,
     onImageClick: (PSImage) -> Unit = { },
 ) {
@@ -194,7 +226,7 @@ fun ImageItem(
 
         AsyncImage(
             model = image.thumbSource.url,
-            contentDescription = "Image thumbnail",
+            contentDescription = stringResource(R.string.image_details_item_image_content_description),
             modifier = Modifier
                 .fillMaxSize()
                 .aspectRatio(image.thumbSource.width.toFloat() / image.thumbSource.height),

@@ -1,3 +1,6 @@
 package com.andmar.search.ui
 
-internal data class SearchScreenInput(val query: String)
+import com.andmar.data.images.entity.PSImage
+import java.util.Optional
+
+internal data class SearchScreenInput(val query: String, val showDialog: Optional<PSImage> = Optional.empty())

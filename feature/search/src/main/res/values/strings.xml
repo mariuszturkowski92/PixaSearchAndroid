@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="search_images_error_on_list_with_cached_data_loaded">An error occurred, you see cached data, use pull to refresh to reload</string>
+    <string name="image_search_confirm_dialog_confirm_button">Open</string>
+    <string name="image_search_confirm_dialog_dismiss_button">Close</string>
+    <string name="image_search_confirm_dialog_title">Image details</string>
+    <string name="image_search_confirm_dialog_message">Are you sure you want to open the image details?</string>
+    <string name="image_details_item_image_content_description">Image thumbnail</string>
 </resources>

@@ -11,8 +11,12 @@ import com.andmar.search.ui.SearchScreenInput
 import com.andmar.ui.state.launchWithErrorHandling
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import java.util.Optional
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,6 +32,10 @@ internal class ImageSearchPagingViewModel @Inject constructor(
     private val _pagingData: MutableStateFlow<PagingData<PSImage>> = MutableStateFlow(PagingData.empty())
     val pagingData: Flow<PagingData<PSImage>>
         get() = _pagingData
+
+    private val _events = MutableSharedFlow<ImageSearchAction>()
+    val events: SharedFlow<ImageSearchAction>
+        get() = _events.asSharedFlow()
 
     init {
         searchForImages()
@@ -46,9 +54,28 @@ internal class ImageSearchPagingViewModel @Inject constructor(
         _input.value = _input.value.copy(query = newQuery)
     }
 
-    companion object {
-        private const val DEFAULT_SEARCH_QUERY = "fruits"
-        private const val TAG_SEARCH_FOR_IMAGES = "search_for_images"
+    fun onImageClick(image: PSImage) {
+        _input.value = _input.value.copy(showDialog = Optional.of(image))
     }
 
+    fun onConfirmImageOpen(image: PSImage) {
+        viewModelScope.launchWithErrorHandling {
+            _events.emit(ImageSearchAction.OpenImageDetails(image))
+            _input.value = _input.value.copy(showDialog = Optional.empty())
+        }
+    }
+
+    fun onDismissImageOpenDialog() {
+        _input.value = _input.value.copy(showDialog = Optional.empty())
+    }
+
+    companion object {
+        private const val DEFAULT_SEARCH_QUERY = "fruits"
+    }
+
+
+}
+
+internal sealed class ImageSearchAction {
+    data class OpenImageDetails(val image: PSImage) : ImageSearchAction()
 }

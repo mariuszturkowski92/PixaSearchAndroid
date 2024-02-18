@@ -41,6 +41,7 @@ class ImagesRemoteMediator(
                         pageFromLDS + 1
                     }
                 }
+                Timber.d("load: page=$page, loadType=$loadType")
                 val response = imagesRemoteDataSource.getImages(query, page, MAX_PAGE_SIZE)
                 if (response.hits.isEmpty()) {
                     return@withContext MediatorResult.Success(
@@ -52,17 +53,18 @@ class ImagesRemoteMediator(
                     imagesLocalDataSource.refreshImagesWithQuery(
                         Mapper.mapFromPSImagesResponseDTOToImagesWithQueryDB(query, response)
                     )
+                } else {
+
+                    // Insert new images into database, which invalidates the
+                    // current PagingData, allowing Paging to present the updates
+                    // in the DB.
+                    imagesLocalDataSource.updateExistingQueryWIthImages(
+                        Mapper.mapFromPSImagesResponseDTOToImagesWithQueryDB(query, response), page
+                    )
                 }
 
-                // Insert new users into database, which invalidates the
-                // current PagingData, allowing Paging to present the updates
-                // in the DB.
-                imagesLocalDataSource.updateExistingQueryWIthImages(
-                    Mapper.mapFromPSImagesResponseDTOToImagesWithQueryDB(query, response), page
-                )
-
                 try {
-                    imagesLocalDataSource.deleteOldestIfCountExceedCacheLimit()
+//                    imagesLocalDataSource.deleteOldestIfCountExceedCacheLimit()
                 } catch (e: Exception) { // do not propagate this exception down the call stack, log it to be fixed in future.s
                     Timber.e(e)
                 }

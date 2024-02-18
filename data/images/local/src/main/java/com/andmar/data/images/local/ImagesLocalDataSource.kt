@@ -46,4 +46,10 @@ interface ImagesLocalDataSource {
     fun getImageWithId(id: Int): Flow<ImageWithQueryDB>
     suspend fun updateSingleImage(imageWithQueryDB: ImageWithQueryDB)
 
+    companion object {
+        const val MAX_EMPTY_QUERIES_IMAGES_CACHED = 5
+        const val MAX_QUERIES_CACHED = 5
+        const val EMPTY_QUERY = ""
+    }
+
 }

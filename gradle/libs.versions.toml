@@ -25,6 +25,7 @@ room = "2.6.1"
 mockk = "1.13.9"
 paging = "3.2.1"
 paging-compose = "3.2.1"
+assertK = "0.28.0"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -47,6 +48,8 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "palette-ktx" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+assertk = { group = "com.willowtreeapps.assertk", name = "assertk", version.ref = "assertK" }
 
 # paging
 paging-runtime-ktx = { group = "androidx.paging", name = "paging-runtime-ktx", version.ref = "paging" }
