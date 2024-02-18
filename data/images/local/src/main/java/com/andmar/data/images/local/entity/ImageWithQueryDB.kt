@@ -1,5 +1,6 @@
 package com.andmar.data.images.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -8,7 +9,7 @@ import androidx.room.PrimaryKey
     indices = [Index(
         value = arrayOf("imageId", "query"),
         unique = true
-    ), Index("query")]
+    )]
 )
 data class ImageWithQueryDB(
     @PrimaryKey(autoGenerate = true)
@@ -25,6 +26,12 @@ data class ImageWithQueryDB(
     val userImageURL: String,
     val likes: Int,
     val comments: Int,
+    val downloads: Int,
     val tags: String,
     val userId: Int,
+    @ColumnInfo(
+        name = "modified_at",
+        defaultValue = "CURRENT_TIMESTAMP"
+    )
+    val modifiedAt: Long = System.currentTimeMillis(),
 )

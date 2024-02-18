@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.andmar.data.images.local.ImagesLocalDataSource.Companion.MAX_QUERIES_CACHED
 import com.andmar.data.images.local.entity.QueryDB
 
 @Dao

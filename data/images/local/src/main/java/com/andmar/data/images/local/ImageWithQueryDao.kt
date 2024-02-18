@@ -7,6 +7,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.andmar.data.images.local.ImagesLocalDataSource.Companion.EMPTY_QUERY
+import com.andmar.data.images.local.ImagesLocalDataSource.Companion.MAX_EMPTY_QUERIES_IMAGES_CACHED
 import com.andmar.data.images.local.entity.ImageWithQueryDB
 import kotlinx.coroutines.flow.Flow
 
@@ -17,7 +19,10 @@ internal interface ImageWithQueryDao {
     suspend fun getAll(): List<ImageWithQueryDB>
 
     @Query("SELECT * FROM ImageWithQueryDB WHERE imageId = :id")
-    suspend fun getById(id: Int): ImageWithQueryDB
+    suspend fun getById(id: Int): ImageWithQueryDB?
+
+    @Query("SELECT EXISTS(SELECT * FROM ImageWithQueryDB WHERE imageId = :id)")
+    suspend fun isImageExists(id: Int): Boolean
 
     @Query("SELECT * FROM ImageWithQueryDB WHERE `query` = :query")
     fun getByQueryFlow(query: String): Flow<List<ImageWithQueryDB>>
@@ -43,4 +48,13 @@ internal interface ImageWithQueryDao {
 
     @Query("SELECT COUNT(*) FROM ImageWithQueryDB WHERE `query` = :query")
     suspend fun countWith(query: String): Int
+
+    @Query("SELECT * FROM ImageWithQueryDB WHERE imageId = :id ORDER BY modified_at DESC LIMIT 1")
+    fun getByIdFlow(id: Int): Flow<ImageWithQueryDB>
+
+    @Query("SELECT * FROM ImageWithQueryDB WHERE `query` = :emptyQuery ORDER BY modified_at DESC LIMIT :limit OFFSET $MAX_EMPTY_QUERIES_IMAGES_CACHED")
+    suspend fun selectOldestEmptyQueryImages(
+        limit: Int,
+        emptyQuery: String = EMPTY_QUERY,
+    ): List<ImageWithQueryDB>
 }

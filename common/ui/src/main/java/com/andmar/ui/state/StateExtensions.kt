@@ -14,12 +14,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.andmar.common.navigation.CoreNavigator
 import com.andmar.ui.R
 
 
 @Composable
-fun <T> State<T>.StateHandling(
+fun <T> UiState<T>.StateHandling(
     retryHandler: RetryHandler?,
     content: @Composable (T) -> Unit = {},
     composableBuilder: StateComposableBuilder<T> = remember {
@@ -36,18 +35,18 @@ fun <T> State<T>.StateHandling(
             modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
         ) {
             if (data != null) {
-                composableBuilder.content(data)
+                cb.content(data)
             }
-            composableBuilder.loader(data)
+            cb.loader(data)
         }
     },
     /**
      * Called when an error is received. If this returns true, the error will be considered handled and will not be shown
      * @return true if the error was handled, false otherwise
      */
-    onError: @Composable ((State<T>, composableBuilder: StateComposableBuilder<T>) -> Boolean) = { state, cb ->
+    onError: @Composable ((UiState<T>, composableBuilder: StateComposableBuilder<T>) -> Boolean) = { state, cb ->
         state.data?.let {
-            composableBuilder.content(state.data)
+            cb.content(it)
         }
         false
     },
@@ -86,7 +85,7 @@ open class StateComposableBuilder<T>(
         }
     },
     val empty: @Composable () -> Unit = {},
-    val error: @Composable (State<T>) -> Unit = { state ->
+    val error: @Composable (UiState<T>) -> Unit = { state ->
         AlertDialog(
             onDismissRequest = {
                 retryHandler?.onDismissErrorDialog(state)

@@ -1,12 +1,19 @@
 package com.andmar.data.images.local
 
 import android.content.Context
+import androidx.paging.PagingSource
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import assertk.assertThat
+import assertk.assertions.hasSameSizeAs
+import assertk.assertions.isEqualToIgnoringGivenProperties
+import com.andmar.data.images.local.entity.ImageWithQueryDB
 import com.andmar.data.images.local.mock.ImageWithQueryFactory
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -69,15 +76,24 @@ class ImagesLocalDataSourceImplTest {
     fun deleteOldestIfCountExceedCacheLimit_deletesData() = runBlocking {
         val imageWithQueryFactory = ImageWithQueryFactory()
 
-        (1..(MAX_QUERIES_CACHED + 2)).forEach {
+        (1..(ImagesLocalDataSource.MAX_QUERIES_CACHED + 2)).forEach {
             val data = imageWithQueryFactory.createImageWithQueryDBList("testQuery$it", 20)
             imagesLocalDataSourceImpl.refreshImagesWithQuery(data)
+        }
+
+        repeat((1..(ImagesLocalDataSource.MAX_EMPTY_QUERIES_IMAGES_CACHED + 20)).count()) {
+            val data = imageWithQueryFactory.createImageWithQueryDBList(ImagesLocalDataSource.EMPTY_QUERY, 1)
+            imagesLocalDataSourceImpl.updateSingleImage(data.first())
         }
 
         imagesLocalDataSourceImpl.deleteOldestIfCountExceedCacheLimit()
 
         val count = imagesLocalDataSourceImpl.countWith("testQuery1")
         assertEquals(0, count)
+        assertEquals(
+            ImagesLocalDataSource.MAX_EMPTY_QUERIES_IMAGES_CACHED,
+            imagesLocalDataSourceImpl.countWith(ImagesLocalDataSource.EMPTY_QUERY)
+        )
     }
 
     @Test
@@ -96,5 +112,80 @@ class ImagesLocalDataSourceImplTest {
 
         val page = imagesLocalDataSourceImpl.getCurrentPage("testQuery")
         assertEquals(2, page)
+    }
+
+    @Test
+    fun isImageExists_returnsCorrectResult() = runBlocking {
+        val imageWithQueryFactory = ImageWithQueryFactory()
+
+        val data = imageWithQueryFactory.createImageWithQueryDBList("testQuery", 1)
+        imagesLocalDataSourceImpl.refreshImagesWithQuery(data)
+
+        val exists = imagesLocalDataSourceImpl.isImageExists(data.first().imageId)
+        assertTrue(exists)
+    }
+
+    @Test
+    fun getImageWithId_returnsCorrectImage() = runBlocking {
+        val imageWithQueryFactory = ImageWithQueryFactory()
+
+        val data = imageWithQueryFactory.createImageWithQueryDBList("testQuery", 1)
+        imagesLocalDataSourceImpl.refreshImagesWithQuery(data)
+
+        val image = imagesLocalDataSourceImpl.getImageWithId(data.first().imageId).first()
+        assertEquals(data.first().imageId, image.imageId)
+    }
+
+    @Test
+    fun updateSingleImage_updatesCorrectly() = runBlocking {
+        val imageWithQueryFactory = ImageWithQueryFactory()
+
+        val data = imageWithQueryFactory.createImageWithQueryDBList("testQuery", 1)
+        imagesLocalDataSourceImpl.refreshImagesWithQuery(data)
+
+
+        val updatedImage = data.first().copy(downloads = 230)
+        imagesLocalDataSourceImpl.updateSingleImage(updatedImage)
+
+        val image = imagesLocalDataSourceImpl.getImageWithId(updatedImage.imageId).first()
+        assertTrue(data.first().modifiedAt < image.modifiedAt)
+        assertEquals(image.downloads, updatedImage.downloads)
+    }
+
+    @Test
+    fun getImagesWithQueryPagingSource_returnsCorrectPagingSource() = runBlocking {
+        val imageWithQueryFactory = ImageWithQueryFactory()
+
+        val data = imageWithQueryFactory.createImageWithQueryDBList("testQuery", 20)
+        imagesLocalDataSourceImpl.refreshImagesWithQuery(data)
+
+        val pagingSource = imagesLocalDataSourceImpl.getImagesWithQueryPagingSource("testQuery")
+        val loadResult: PagingSource.LoadResult<Int, ImageWithQueryDB> =
+            pagingSource.load(PagingSource.LoadParams.Refresh(null, 20, false))
+
+        assertTrue(loadResult is PagingSource.LoadResult.Page)
+        assertThat((loadResult as PagingSource.LoadResult.Page).data).hasSameSizeAs(data)
+        loadResult.data.forEachIndexed { index, imageWithQueryDB ->
+            assertThat(imageWithQueryDB).isEqualToIgnoringGivenProperties(
+                data[index],
+                ImageWithQueryDB::modifiedAt,
+                ImageWithQueryDB::id
+            )
+        }
+    }
+
+    @Test
+    fun deleteOldestIfCountExceedCacheLimit_deletesCorrectly() = runBlocking {
+        val imageWithQueryFactory = ImageWithQueryFactory()
+
+        (1..(ImagesLocalDataSource.MAX_QUERIES_CACHED + 2)).forEach {
+            val data = imageWithQueryFactory.createImageWithQueryDBList("testQuery$it", 20)
+            imagesLocalDataSourceImpl.refreshImagesWithQuery(data)
+        }
+
+        imagesLocalDataSourceImpl.deleteOldestIfCountExceedCacheLimit()
+
+        val count = imagesLocalDataSourceImpl.countWith("testQuery1")
+        assertEquals(0, count)
     }
 }

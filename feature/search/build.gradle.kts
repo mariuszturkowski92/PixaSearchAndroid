@@ -46,6 +46,7 @@ android {
 dependencies {
     implementation(project(":data:images"))
     implementation(project(":common:ui"))
+    implementation(project(":common:navigation"))
 
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)

@@ -2,6 +2,7 @@ package com.andmar.data.images.local
 
 import androidx.paging.PagingSource
 import com.andmar.data.images.local.entity.ImageWithQueryDB
+import kotlinx.coroutines.flow.Flow
 
 interface ImagesLocalDataSource {
 
@@ -40,5 +41,15 @@ interface ImagesLocalDataSource {
      * cache limit is defined in [MAX_QUERIES_CACHED]
      */
     suspend fun deleteOldestIfCountExceedCacheLimit()
+
+    suspend fun isImageExists(id: Int): Boolean
+    fun getImageWithId(id: Int): Flow<ImageWithQueryDB>
+    suspend fun updateSingleImage(imageWithQueryDB: ImageWithQueryDB)
+
+    companion object {
+        const val MAX_EMPTY_QUERIES_IMAGES_CACHED = 5
+        const val MAX_QUERIES_CACHED = 5
+        const val EMPTY_QUERY = ""
+    }
 
 }

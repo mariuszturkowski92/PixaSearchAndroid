@@ -16,6 +16,14 @@ internal class PSImageProvider : PreviewParameterProvider<PSImage> {
                 ),
                 username = "user1",
                 tags = listOf("tag1", "tag2"),
+                likes = 10,
+                comments = 5,
+                downloads = 3,
+                largeImage = ImageData(
+                    url = "https://www.example.com/image1",
+                    height = 1024,
+                    width = 1024
+                )
             )
         )
 }

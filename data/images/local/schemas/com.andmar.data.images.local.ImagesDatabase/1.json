@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "9768a159507383bf2118a9e1935e3bd0",
+    "identityHash": "fa67b69dc52489cfaf0b08d22f4df727",
     "entities": [
       {
         "tableName": "ImageWithQueryDB",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `imageId` INTEGER NOT NULL, `query` TEXT NOT NULL, `previewURL` TEXT NOT NULL, `previewWidth` INTEGER NOT NULL, `previewHeight` INTEGER NOT NULL, `largeImageURL` TEXT NOT NULL, `largeImageWidth` INTEGER NOT NULL, `largeImageHeight` INTEGER NOT NULL, `user` TEXT NOT NULL, `userImageURL` TEXT NOT NULL, `likes` INTEGER NOT NULL, `comments` INTEGER NOT NULL, `tags` TEXT NOT NULL, `userId` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `imageId` INTEGER NOT NULL, `query` TEXT NOT NULL, `previewURL` TEXT NOT NULL, `previewWidth` INTEGER NOT NULL, `previewHeight` INTEGER NOT NULL, `largeImageURL` TEXT NOT NULL, `largeImageWidth` INTEGER NOT NULL, `largeImageHeight` INTEGER NOT NULL, `user` TEXT NOT NULL, `userImageURL` TEXT NOT NULL, `likes` INTEGER NOT NULL, `comments` INTEGER NOT NULL, `downloads` INTEGER NOT NULL, `tags` TEXT NOT NULL, `userId` INTEGER NOT NULL, `modified_at` INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP)",
         "fields": [
           {
             "fieldPath": "id",
@@ -87,6 +87,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "downloads",
+            "columnName": "downloads",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "tags",
             "columnName": "tags",
             "affinity": "TEXT",
@@ -97,6 +103,13 @@
             "columnName": "userId",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "modifiedAt",
+            "columnName": "modified_at",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "CURRENT_TIMESTAMP"
           }
         ],
         "primaryKey": {
@@ -115,15 +128,6 @@
             ],
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ImageWithQueryDB_imageId_query` ON `${TABLE_NAME}` (`imageId`, `query`)"
-          },
-          {
-            "name": "index_ImageWithQueryDB_query",
-            "unique": false,
-            "columnNames": [
-              "query"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_ImageWithQueryDB_query` ON `${TABLE_NAME}` (`query`)"
           }
         ],
         "foreignKeys": []
@@ -172,7 +176,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9768a159507383bf2118a9e1935e3bd0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fa67b69dc52489cfaf0b08d22f4df727')"
     ]
   }
 }

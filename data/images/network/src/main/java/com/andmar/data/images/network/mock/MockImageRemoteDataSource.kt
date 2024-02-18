@@ -15,6 +15,10 @@ class MockImageRemoteDataSource : ImagesRemoteDataSource {
         }
     }
 
+    override suspend fun getImageWithId(id: Int): PSImagesResponseDTO {
+        return imagesResponse.first { it.hits.any { it.id == id } }
+    }
+
     fun clearPosts() {
         imagesResponse.clear()
     }
