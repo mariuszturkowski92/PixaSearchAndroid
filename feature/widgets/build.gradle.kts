@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.andmar.search"
+    namespace = "com.andmar.pixasearch.widgets"
     compileSdk = 34
 
     defaultConfig {
@@ -36,60 +36,26 @@ android {
         kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
-    ksp {
-        arg("compose-destinations.moduleName", "search")
-        arg("compose-destinations.mode", "destinations")
-    }
-
 }
 
 dependencies {
+
     implementation(project(":data:images"))
     implementation(project(":common:ui"))
-    implementation(project(":common:navigation"))
 
     implementation(libs.core.ktx)
-    implementation(libs.lifecycle.runtime.ktx)
-    implementation(libs.activity.compose)
-
-    implementation(platform(libs.compose.bom))
-    implementation(libs.compose.ui)
-    implementation(libs.compose.ui.graphics)
-    implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.material3)
-
-    implementation(libs.androidx.palette.ktx)
-
-    debugImplementation(libs.compose.ui.tooling)
-    debugImplementation(libs.compose.ui.test.manifest)
-
-
-    // compose destinations
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
-
     //    Hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
 
-    //coil
-    implementation(libs.coil.compose)
-
-    implementation(libs.paging.compose)
-
-    implementation(libs.timber)
-    implementation(libs.kotlinx.coroutines.core)
-
-
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
+    //glance
+    implementation(libs.glance)
+    implementation(libs.glance.material3)
+    //material3
+    implementation(libs.compose.material3)
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockk.android)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.paging.testing)
-
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
 }

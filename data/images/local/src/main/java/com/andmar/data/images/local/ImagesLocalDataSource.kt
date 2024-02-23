@@ -13,6 +13,11 @@ interface ImagesLocalDataSource {
     fun getImagesWithQueryPagingSource(query: String): PagingSource<Int, ImageWithQueryDB>
 
     /**
+     * Returns all the images stored in local data source
+     */
+    fun getAllImagesFlow(): Flow<List<ImageWithQueryDB>>
+
+    /**
      * Refreshes the images with the new images
      * @param data the new images to be added
      */

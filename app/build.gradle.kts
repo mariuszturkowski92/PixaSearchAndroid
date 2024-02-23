@@ -55,6 +55,7 @@ dependencies {
 
     implementation(project(":feature:search"))
     implementation(project(":feature:details"))
+    implementation(project(":feature:widgets"))
     implementation(project(":data:images"))
     implementation(project(":common:ui"))
     implementation(project(":common:navigation"))

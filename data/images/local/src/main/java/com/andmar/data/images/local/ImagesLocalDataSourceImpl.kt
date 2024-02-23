@@ -75,6 +75,10 @@ internal class ImagesLocalDataSourceImpl @Inject constructor(
         return imageWithQueryDao.getByQueryPagingSource(query)
     }
 
+    override fun getAllImagesFlow(): Flow<List<ImageWithQueryDB>> {
+        return imageWithQueryDao.getAllFlow()
+    }
+
     override suspend fun refreshImagesWithQuery(data: List<ImageWithQueryDB>) {
         Timber.d("refreshImagesWithQuery: data.size=${data.size}")
         if (data.map { it.query }.distinct().size > 1) {

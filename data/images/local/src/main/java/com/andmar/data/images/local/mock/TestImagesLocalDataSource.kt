@@ -13,6 +13,10 @@ class TestImagesLocalDataSource : ImagesLocalDataSource {
         TODO("Not yet implemented")
     }
 
+    override fun getAllImagesFlow(): Flow<List<ImageWithQueryDB>> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun refreshImagesWithQuery(data: List<ImageWithQueryDB>) {
         TODO("Not yet implemented")
     }

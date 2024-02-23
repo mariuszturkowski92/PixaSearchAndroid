@@ -8,4 +8,5 @@ interface ImagesRepository {
 
     fun getImagesWithPagingSource(query: String): Flow<PagingData<PSImage>>
     suspend fun getImageWithId(id: Int, forceFromRemote: Boolean = false): Flow<PSImage>
+    fun getAllImages(): Flow<List<PSImage>>
 }

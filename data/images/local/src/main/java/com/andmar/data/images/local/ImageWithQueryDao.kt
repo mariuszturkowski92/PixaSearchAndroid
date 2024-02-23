@@ -24,8 +24,11 @@ internal interface ImageWithQueryDao {
     @Query("SELECT EXISTS(SELECT * FROM ImageWithQueryDB WHERE imageId = :id)")
     suspend fun isImageExists(id: Int): Boolean
 
-    @Query("SELECT * FROM ImageWithQueryDB WHERE `query` = :query")
+    @Query("SELECT * FROM ImageWithQueryDB WHERE `query` = :query ORDER BY id ASC")
     fun getByQueryFlow(query: String): Flow<List<ImageWithQueryDB>>
+
+    @Query("SELECT * FROM ImageWithQueryDB ORDER BY id ASC" )
+    fun getAllFlow(): Flow<List<ImageWithQueryDB>>
 
     @Query("SELECT * FROM ImageWithQueryDB WHERE `query` = :query ORDER BY id ASC")
     fun getByQueryPagingSource(query: String): PagingSource<Int, ImageWithQueryDB>

@@ -70,4 +70,10 @@ internal class ImagesRepositoryImpl @Inject constructor(
         return imagesLocalDataSource.getImageWithId(id).map { Mapper.mapFromImageWithQueryDBToPSImage(it) }
 
     }
+
+    override fun getAllImages(): Flow<List<PSImage>> {
+        return imagesLocalDataSource.getAllImagesFlow().map { list ->
+            list.map { Mapper.mapFromImageWithQueryDBToPSImage(it) }
+        }
+    }
 }

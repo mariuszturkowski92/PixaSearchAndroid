@@ -6,4 +6,5 @@
     <string name="image_search_confirm_dialog_title">Image details</string>
     <string name="image_search_confirm_dialog_message">Are you sure you want to open the image details?</string>
     <string name="image_details_item_image_content_description">Image thumbnail</string>
+    <string name="search_appwidget_description">Search Images Widget</string>
 </resources>
