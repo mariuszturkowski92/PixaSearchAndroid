@@ -44,11 +44,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import com.andmar.common.navigation.AppNavigator
-import com.andmar.data.images.entity.PSImage
 import com.andmar.search.R
-import com.andmar.search.ui.PSImageProvider
+import com.andmar.search.ui.ImageItemProvider
 import com.andmar.search.ui.SearchScreenInput
 import com.andmar.search.ui.components.SearchBar
+import com.andmar.ui.ObserveAsEvents
 import com.ramcosta.composedestinations.annotation.Destination
 import timber.log.Timber
 
@@ -82,14 +82,11 @@ internal fun ImageSearchPagingScreen(
         )
     }
 
-    LaunchedEffect(viewModel.events) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is ImageSearchAction.OpenImageDetails -> {
-                    appNavigator.navigateToImageDetails(event.image.id)
-                }
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is ImageSearchAction.OpenImageDetails -> {
+                appNavigator.navigateToImageDetails(event.image.id)
             }
-
         }
     }
 
@@ -99,12 +96,12 @@ internal fun ImageSearchPagingScreen(
 @Composable
 private fun ImageSearchMainContent(
     input: SearchScreenInput,
-    imagesResult: LazyPagingItems<PSImage>,
+    imagesResult: LazyPagingItems<ImageItem>,
     snackbarHostState: SnackbarHostState,
     onNewQuery: (String) -> Unit,
     onSearch: () -> Unit,
     reloadData: () -> Unit,
-    onImageClick: (PSImage) -> Unit,
+    onImageClick: (ImageItem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -156,7 +153,12 @@ private fun ImageSearchMainContent(
                         items(
                             imagesResult.itemCount,
                             key = imagesResult.itemKey { it.id }) { image ->
-                            imagesResult[image]?.let { ImageItem(image = it, onImageClick = onImageClick) }
+                            imagesResult[image]?.let {
+                                ImageGridItem(
+                                    image = it,
+                                    onImageClick = onImageClick
+                                )
+                            }
                         }
                         item(span = StaggeredGridItemSpan.FullLine) {
                             if (imagesResult.loadState.append is LoadState.Loading) {
@@ -213,9 +215,9 @@ private fun ImageSearchErrorState(onReload: () -> Unit) {
 
 @Composable
 @Preview
-private fun ImageItem(
-    @PreviewParameter(PSImageProvider::class) image: PSImage,
-    onImageClick: (PSImage) -> Unit = { },
+private fun ImageGridItem(
+    @PreviewParameter(ImageItemProvider::class) image: ImageItem,
+    onImageClick: (ImageItem) -> Unit = { },
 ) {
     Box(
         modifier = Modifier

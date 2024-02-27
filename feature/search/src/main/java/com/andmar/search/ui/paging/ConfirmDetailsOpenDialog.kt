@@ -8,15 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import com.andmar.data.images.entity.PSImage
 import com.andmar.search.R
-import com.andmar.search.ui.PSImageProvider
+import com.andmar.search.ui.ImageItemProvider
 
 @Composable
 @Preview
 internal fun ConfirmDetailsOpenDialog(
-    @PreviewParameter(PSImageProvider::class) image: PSImage,
-    onConfirmImageOpen: (PSImage) -> Unit = {},
+    @PreviewParameter(ImageItemProvider::class) image: ImageItem,
+    onConfirmImageOpen: (ImageItem) -> Unit = {},
     onDismissImageOpenDialog: () -> Unit = {},
 ) {
     AlertDialog(

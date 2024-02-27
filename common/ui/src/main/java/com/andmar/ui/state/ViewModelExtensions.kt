@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.cancellation.CancellationException
 
 fun CoroutineScope.launchWithErrorHandling(
     context: CoroutineContext = EmptyCoroutineContext,
@@ -19,6 +20,9 @@ fun CoroutineScope.launchWithErrorHandling(
         try {
             block()
         } catch (e: Exception) {
+            if (e is CancellationException) {
+                throw e
+            }
             onError(e)
         }
     }

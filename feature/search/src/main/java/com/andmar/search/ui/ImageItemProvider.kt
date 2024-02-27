@@ -2,12 +2,12 @@ package com.andmar.search.ui
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.andmar.data.images.entity.ImageData
-import com.andmar.data.images.entity.PSImage
+import com.andmar.search.ui.paging.ImageItem
 
-internal class PSImageProvider : PreviewParameterProvider<PSImage> {
-    override val values: Sequence<PSImage>
+internal class ImageItemProvider : PreviewParameterProvider<ImageItem> {
+    override val values: Sequence<ImageItem>
         get() = sequenceOf(
-            PSImage(
+            ImageItem(
                 id = 1,
                 thumbSource = ImageData(
                     url = "https://www.example.com/image1",
