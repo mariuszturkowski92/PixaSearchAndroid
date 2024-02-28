@@ -226,7 +226,7 @@ private fun ImageGridItem(
 ) {
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .aspectRatio(image.thumbSource.width.toFloat() / image.thumbSource.height)
             .clickable(onClick = { onImageClick(image) })
     ) {
         val textColor = remember { mutableStateOf(Color.Black) }
@@ -235,8 +235,7 @@ private fun ImageGridItem(
             model = image.thumbSource.url,
             contentDescription = stringResource(R.string.image_details_item_image_content_description),
             modifier = Modifier
-                .fillMaxSize()
-                .aspectRatio(image.thumbSource.width.toFloat() / image.thumbSource.height),
+                .fillMaxSize(),
             contentScale = ContentScale.FillWidth,
 
             )
