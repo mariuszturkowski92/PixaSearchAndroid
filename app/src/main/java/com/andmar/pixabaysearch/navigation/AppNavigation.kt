@@ -23,7 +23,7 @@ internal fun AppNavigation(
     snackbarHostState: SnackbarHostState,
 ) {
     //pass your enter/exit transitions here
-    val appNavigator = remember { AppNavigatorImpl(navController) }
+    val appNavigator = remember(navController) { AppNavigatorImpl(navController) }
 
     val navHostEngine = rememberAnimatedNavHostEngine(
         rootDefaultAnimations = RootNavGraphDefaultAnimations(

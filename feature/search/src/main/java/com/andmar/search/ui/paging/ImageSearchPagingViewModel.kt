@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import java.util.Optional
@@ -46,16 +47,19 @@ internal class ImageSearchPagingViewModel @Inject constructor(
     fun searchForImages() {
         viewModelScope.launchWithErrorHandling {
             getImagesWithPagingUseCase(_input.value.query).cachedIn(viewModelScope)
-                .collect {
-                    _pagingData.value = it.map { image ->
+                .map { pagingData ->
+                    pagingData.map { image ->
                         ImageItem.fromPSImage(image)
                     }
+                }
+                .collect {
+                    _pagingData.value = it
                 }
         }
     }
 
     fun onNewQuery(newQuery: String) {
-        _input.value = _input.value.copy(query = newQuery)
+        _input.update { it.copy(query = newQuery) }
     }
 
     fun onImageClick(image: ImageItem) {
@@ -67,12 +71,12 @@ internal class ImageSearchPagingViewModel @Inject constructor(
     fun onConfirmImageOpen(image: ImageItem) {
         viewModelScope.launchWithErrorHandling {
             _events.send(ImageSearchAction.OpenImageDetails(image))
-            _input.value = _input.value.copy(showDialog = Optional.empty())
+            _input.update { it.copy(showDialog = Optional.empty()) }
         }
     }
 
     fun onDismissImageOpenDialog() {
-        _input.value = _input.value.copy(showDialog = Optional.empty())
+        _input.update { it.copy(showDialog = Optional.empty()) }
     }
 
     companion object {

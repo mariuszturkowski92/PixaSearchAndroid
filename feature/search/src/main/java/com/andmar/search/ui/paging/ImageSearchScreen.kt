@@ -48,7 +48,6 @@ import com.andmar.common.navigation.AppNavigator
 import com.andmar.search.R
 import com.andmar.search.ui.ImageItem
 import com.andmar.search.ui.ImageItemProvider
-import com.andmar.search.ui.SearchScreenInput
 import com.andmar.search.ui.components.SearchBar
 import com.andmar.ui.ObserveAsEvents
 import com.ramcosta.composedestinations.annotation.Destination
@@ -65,7 +64,7 @@ internal fun ImageSearchPagingScreen(
 
     val imagesResult = viewModel.pagingData.collectAsLazyPagingItems()
     ImageSearchMainContent(
-        input = input,
+        currentQuery = input.query,
         imagesResult = imagesResult,
         snackbarHostState = snackbarHostState,
         onNewQuery = viewModel::onNewQuery,
@@ -94,10 +93,9 @@ internal fun ImageSearchPagingScreen(
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ImageSearchMainContent(
-    input: SearchScreenInput,
+    currentQuery: String,
     imagesResult: LazyPagingItems<ImageItem>,
     snackbarHostState: SnackbarHostState,
     onNewQuery: (String) -> Unit,
@@ -109,87 +107,98 @@ private fun ImageSearchMainContent(
     Column(modifier = modifier.fillMaxSize()) {
         SearchBar(
             modifier = Modifier.zIndex(2f),
-            query = input.query,
+            query = currentQuery,
             onQueryChange = onNewQuery,
             onSearch = onSearch
         )
-        val state = rememberPullToRefreshState()
+        ImageResultGrid(imagesResult, reloadData, snackbarHostState, onImageClick)
+    }
+
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun ImageResultGrid(
+    imagesResult: LazyPagingItems<ImageItem>,
+    reloadData: () -> Unit,
+    snackbarHostState: SnackbarHostState,
+    onImageClick: (ImageItem) -> Unit,
+) {
+    val state = rememberPullToRefreshState()
+    LaunchedEffect(imagesResult.loadState.refresh) {
         if (imagesResult.loadState.refresh is LoadState.NotLoading) {
-            LaunchedEffect(imagesResult.loadState) {
-                state.endRefresh()
-            }
+            state.endRefresh()
         }
+    }
+    LaunchedEffect(state.isRefreshing) {
         if (state.isRefreshing) {
-            LaunchedEffect(state.isRefreshing) {
-                reloadData()
-            }
+            reloadData()
         }
-        val lazyStaggeredGridState = rememberLazyStaggeredGridState()
+    }
+    val lazyStaggeredGridState = rememberLazyStaggeredGridState()
 
-        LaunchedEffect(imagesResult.itemCount) {
-            Timber.d("ImageSearchMainContent: imagesResult.loadState.refresh=${imagesResult.loadState.refresh}")
-            Timber.d("ImageSearchMainContent size: ${imagesResult.itemCount}")
-        }
+    LaunchedEffect(imagesResult.itemCount) {
+        Timber.d("ImageSearchMainContent: imagesResult.loadState.refresh=${imagesResult.loadState.refresh}")
+        Timber.d("ImageSearchMainContent size: ${imagesResult.itemCount}")
+    }
 
-        Box(
-            Modifier
-                .fillMaxSize()
-                .nestedScroll(state.nestedScrollConnection)
-        ) {
-            if (imagesResult.loadState.refresh is LoadState.Loading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (imagesResult.loadState.refresh is LoadState.Error && imagesResult.itemCount == 0) {
-                ImageSearchErrorState(onReload = { imagesResult.retry() })
-            } else {
-                if (imagesResult.loadState.refresh is LoadState.Error) {
-                    val errorMessage =
-                        stringResource(R.string.search_images_error_on_list_with_cached_data_loaded)
-                    LaunchedEffect(imagesResult.loadState.refresh) {
-                        snackbarHostState.showSnackbar(errorMessage)
-                    }
+    Box(
+        Modifier
+            .fillMaxSize()
+            .nestedScroll(state.nestedScrollConnection)
+    ) {
+        if (imagesResult.loadState.refresh is LoadState.Loading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        } else if (imagesResult.loadState.refresh is LoadState.Error && imagesResult.itemCount == 0) {
+            ImageSearchErrorState(onReload = { imagesResult.retry() })
+        } else {
+            if (imagesResult.loadState.refresh is LoadState.Error) {
+                val errorMessage =
+                    stringResource(R.string.search_images_error_on_list_with_cached_data_loaded)
+                LaunchedEffect(imagesResult.loadState.refresh) {
+                    snackbarHostState.showSnackbar(errorMessage)
                 }
-                LazyVerticalStaggeredGrid(
-                    columns = StaggeredGridCells.Adaptive(160.dp),
-                    state = lazyStaggeredGridState,
-                    content = {
-                        items(
-                            imagesResult.itemCount,
-                            key = imagesResult.itemKey { it.id }) { image ->
-                            imagesResult[image]?.let {
-                                ImageGridItem(
-                                    image = it,
-                                    onImageClick = onImageClick
+            }
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Adaptive(160.dp),
+                state = lazyStaggeredGridState,
+                content = {
+                    items(
+                        imagesResult.itemCount,
+                        key = imagesResult.itemKey { it.id }) { image ->
+                        imagesResult[image]?.let {
+                            ImageGridItem(
+                                image = it,
+                                onImageClick = onImageClick
+                            )
+                        }
+                    }
+                    if (imagesResult.loadState.append is LoadState.Loading) {
+                        item(span = StaggeredGridItemSpan.FullLine) {
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .padding(16.dp)
                                 )
                             }
                         }
-                        if (imagesResult.loadState.append is LoadState.Loading) {
-                            item(span = StaggeredGridItemSpan.FullLine) {
-                                Box(modifier = Modifier.fillMaxWidth()) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier
-                                            .align(Alignment.Center)
-                                            .padding(16.dp)
-                                    )
-                                }
-                            }
-                        } else if (imagesResult.loadState.append is LoadState.Error) {
-                            item(span = StaggeredGridItemSpan.FullLine) {
-                                ImageSearchErrorState(onReload = { imagesResult.retry() })
-                            }
+                    } else if (imagesResult.loadState.append is LoadState.Error) {
+                        item(span = StaggeredGridItemSpan.FullLine) {
+                            ImageSearchErrorState(onReload = { imagesResult.retry() })
                         }
+                    }
 
-                    })
-            }
-            PullToRefreshContainer(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .zIndex(0.1f),
-                state = state,
-            )
-
+                })
         }
-    }
+        PullToRefreshContainer(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .zIndex(0.1f),
+            state = state,
+        )
 
+    }
 }
 
 
