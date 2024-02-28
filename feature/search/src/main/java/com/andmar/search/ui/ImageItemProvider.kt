@@ -2,7 +2,6 @@ package com.andmar.search.ui
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.andmar.data.images.entity.ImageData
-import com.andmar.search.ui.paging.ImageItem
 
 internal class ImageItemProvider : PreviewParameterProvider<ImageItem> {
     override val values: Sequence<ImageItem>

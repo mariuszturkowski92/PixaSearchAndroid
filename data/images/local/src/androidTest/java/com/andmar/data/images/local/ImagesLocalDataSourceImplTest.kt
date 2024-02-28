@@ -188,4 +188,35 @@ class ImagesLocalDataSourceImplTest {
         val count = imagesLocalDataSourceImpl.countWith("testQuery1")
         assertEquals(0, count)
     }
+
+    @Test
+    fun updateSingleImage_preservesOrder() = runBlocking {
+        val imageWithQueryFactory = ImageWithQueryFactory()
+
+        // Step 1: Create and insert a list of images
+        val initialData = imageWithQueryFactory.createImageWithQueryDBList("testQuery", 20)
+        imagesLocalDataSourceImpl.refreshImagesWithQuery(initialData)
+
+        // Step 2: Update one of the images
+        val updatedImage = initialData[10].copy(downloads = 230)
+        imagesLocalDataSourceImpl.updateSingleImage(updatedImage)
+
+        // Step 3: Retrieve the list of images from the database
+        val pagingSource = imagesLocalDataSourceImpl.getImagesWithQueryPagingSource("testQuery")
+        val loadResult: PagingSource.LoadResult<Int, ImageWithQueryDB> =
+            pagingSource.load(PagingSource.LoadParams.Refresh(null, 20, false))
+
+        assertTrue(loadResult is PagingSource.LoadResult.Page)
+        val retrievedData = (loadResult as PagingSource.LoadResult.Page).data
+
+        // Step 4: Check if the order of the images is the same
+        initialData.forEachIndexed { index, imageWithQueryDB ->
+            assertThat(retrievedData[index]).isEqualToIgnoringGivenProperties(
+                imageWithQueryDB,
+                ImageWithQueryDB::modifiedAt,
+                ImageWithQueryDB::downloads,
+                ImageWithQueryDB::id
+            )
+        }
+    }
 }

@@ -13,7 +13,6 @@ import com.andmar.data.images.network.ImagesRemoteDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,6 +32,7 @@ internal class ImagesRepositoryImpl @Inject constructor(
         return Pager(
             config = PagingConfig(
                 pageSize = MAX_PAGE_SIZE,
+                enablePlaceholders = true
             ),
             remoteMediator = ImagesRemoteMediator(
                 query = query,
@@ -41,12 +41,7 @@ internal class ImagesRepositoryImpl @Inject constructor(
                 ioDispatcher = ioDispatcher
             ),
             pagingSourceFactory = {
-                imagesLocalDataSource.getImagesWithQueryPagingSource(query).apply {
-                    this.registerInvalidatedCallback {
-                        Timber.d("getImagesWithPagingSource: PagingSource invalidated")
-                    }
-
-                }
+                imagesLocalDataSource.getImagesWithQueryPagingSource(query)
             }
 
         ).flow.map { pagingData ->

@@ -7,6 +7,7 @@ import androidx.paging.RemoteMediator
 import com.andmar.data.images.local.ImagesLocalDataSource
 import com.andmar.data.images.local.entity.ImageWithQueryDB
 import com.andmar.data.images.network.ImagesRemoteDataSource
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -64,8 +65,11 @@ class ImagesRemoteMediator(
                 }
 
                 try {
-//                    imagesLocalDataSource.deleteOldestIfCountExceedCacheLimit()
+                    imagesLocalDataSource.deleteOldestIfCountExceedCacheLimit()
                 } catch (e: Exception) { // do not propagate this exception down the call stack, log it to be fixed in future.s
+                    if (e is CancellationException) {
+                        throw e
+                    }
                     Timber.e(e)
                 }
 

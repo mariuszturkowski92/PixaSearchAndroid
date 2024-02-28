@@ -22,6 +22,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,6 +46,7 @@ import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import com.andmar.common.navigation.AppNavigator
 import com.andmar.search.R
+import com.andmar.search.ui.ImageItem
 import com.andmar.search.ui.ImageItemProvider
 import com.andmar.search.ui.SearchScreenInput
 import com.andmar.search.ui.components.SearchBar
@@ -59,7 +61,7 @@ internal fun ImageSearchPagingScreen(
     snackbarHostState: SnackbarHostState,
     viewModel: ImageSearchPagingViewModel = hiltViewModel(),
 ) {
-    val input = viewModel.input.collectAsState().value
+    val input by viewModel.input.collectAsState()
 
     val imagesResult = viewModel.pagingData.collectAsLazyPagingItems()
     ImageSearchMainContent(
@@ -160,8 +162,8 @@ private fun ImageSearchMainContent(
                                 )
                             }
                         }
-                        item(span = StaggeredGridItemSpan.FullLine) {
-                            if (imagesResult.loadState.append is LoadState.Loading) {
+                        if (imagesResult.loadState.append is LoadState.Loading) {
+                            item(span = StaggeredGridItemSpan.FullLine) {
                                 Box(modifier = Modifier.fillMaxWidth()) {
                                     CircularProgressIndicator(
                                         modifier = Modifier
@@ -169,10 +171,13 @@ private fun ImageSearchMainContent(
                                             .padding(16.dp)
                                     )
                                 }
-                            } else if (imagesResult.loadState.append is LoadState.Error) {
+                            }
+                        } else if (imagesResult.loadState.append is LoadState.Error) {
+                            item(span = StaggeredGridItemSpan.FullLine) {
                                 ImageSearchErrorState(onReload = { imagesResult.retry() })
                             }
                         }
+
                     })
             }
             PullToRefreshContainer(

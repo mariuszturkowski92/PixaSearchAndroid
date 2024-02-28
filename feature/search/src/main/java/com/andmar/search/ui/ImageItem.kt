@@ -1,4 +1,4 @@
-package com.andmar.search.ui.paging
+package com.andmar.search.ui
 
 import androidx.compose.runtime.Immutable
 import com.andmar.data.images.entity.ImageData

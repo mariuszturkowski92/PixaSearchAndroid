@@ -7,6 +7,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.andmar.data.images.usecase.GetImagesWithPagingUseCase
+import com.andmar.search.ui.ImageItem
 import com.andmar.search.ui.SearchScreenInput
 import com.andmar.ui.state.launchWithErrorHandling
 import dagger.hilt.android.lifecycle.HiltViewModel

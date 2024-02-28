@@ -11,7 +11,9 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
@@ -96,4 +98,36 @@ class ImagesRemoteMediatorTest {
         mediator.load(LoadType.APPEND, mockk())
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `mediator tries to clear old data when load was successful`() = runTest {
+        // Given
+        val query = "testQuery"
+        val imagesLocalDataSource = mockk<ImagesLocalDataSource>(relaxed = true)
+        val imagesRemoteDataSource = mockk<ImagesRemoteDataSource>()
+        val mediator = ImagesRemoteMediator(
+            query,
+            imagesLocalDataSource,
+            imagesRemoteDataSource,
+            UnconfinedTestDispatcher(this.testScheduler)
+        )
+
+        // Mocking the getImages method of ImagesRemoteDataSource to return a non-empty list
+        coEvery {
+            imagesRemoteDataSource.getImages(
+                any(),
+                any(),
+                any()
+            )
+        } returns ImagesFactory().createImageRemoteResponse(10)
+
+
+        // When
+        val result = mediator.load(LoadType.REFRESH, mockk())
+
+        // Then
+        assertTrue(result is RemoteMediator.MediatorResult.Success)
+
+        coVerify { imagesLocalDataSource.deleteOldestIfCountExceedCacheLimit() }
+    }
 }
