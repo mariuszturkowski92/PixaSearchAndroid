@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.andmar.data.images.local.ImagesLocalDataSource.Companion.EMPTY_QUERY
 import com.andmar.data.images.local.ImagesLocalDataSource.Companion.MAX_EMPTY_QUERIES_IMAGES_CACHED
 import com.andmar.data.images.local.entity.ImageWithQueryDB
@@ -27,17 +28,17 @@ internal interface ImageWithQueryDao {
     @Query("SELECT * FROM ImageWithQueryDB WHERE `query` = :query")
     fun getByQueryFlow(query: String): Flow<List<ImageWithQueryDB>>
 
-    @Query("SELECT * FROM ImageWithQueryDB WHERE `query` = :query ORDER BY id ASC")
+    @Query("SELECT * FROM ImageWithQueryDB WHERE `query` = :query")
     fun getByQueryPagingSource(query: String): PagingSource<Int, ImageWithQueryDB>
 
     // delete all with query
     @Query("DELETE FROM ImageWithQueryDB WHERE `query` = :query")
     suspend fun deleteAllWithQuery(query: String)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Upsert
     suspend fun insertAll(imageWithQueryDBs: List<ImageWithQueryDB>)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Upsert
     suspend fun insert(imageWithQueryDB: ImageWithQueryDB)
 
     @Update

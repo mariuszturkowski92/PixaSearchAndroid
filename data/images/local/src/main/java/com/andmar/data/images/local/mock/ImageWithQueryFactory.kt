@@ -26,7 +26,7 @@ class ImageWithQueryFactory {
                 comments = imageId,
                 tags = "testTag$imageId",
                 userId = imageId,
-                downloads = 23
+                downloads = it * 2
             )
         }.apply {
             lastImageId += numberOfImages

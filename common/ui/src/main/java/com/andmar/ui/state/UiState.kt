@@ -1,6 +1,8 @@
 package com.andmar.ui.state
 
+import androidx.compose.runtime.Stable
 import kotlinx.coroutines.flow.MutableStateFlow
+
 
 data class UiState<T>(
     val data: T? = null,
@@ -45,12 +47,13 @@ fun <T> MutableStateFlow<UiState<T>>.error(
 fun <T> MutableStateFlow<UiState<T>>.none() {
     this.value = value.none()
 }
-
+@Stable
 sealed class StateType {
     data object None : StateType()
     data object Loading : StateType()
     data object Success : StateType()
     data object Empty : StateType()
+    @Stable
     data class Error(
         val error: Throwable?,
         val retryTag: String?,

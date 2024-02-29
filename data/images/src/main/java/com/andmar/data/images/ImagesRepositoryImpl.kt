@@ -13,11 +13,10 @@ import com.andmar.data.images.network.ImagesRemoteDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
-const val MAX_PAGE_SIZE = 20
+const val MAX_PAGE_SIZE = 5
 
 @Singleton
 internal class ImagesRepositoryImpl @Inject constructor(
@@ -25,15 +24,14 @@ internal class ImagesRepositoryImpl @Inject constructor(
     private val imagesRemoteDataSource: ImagesRemoteDataSource,
     @IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
+    private val searchPagingConfig: PagingConfig,
 ) : ImagesRepository {
 
 
     @OptIn(ExperimentalPagingApi::class)
     override fun getImagesWithPagingSource(query: String): Flow<PagingData<PSImage>> {
         return Pager(
-            config = PagingConfig(
-                pageSize = MAX_PAGE_SIZE,
-            ),
+            config = searchPagingConfig,
             remoteMediator = ImagesRemoteMediator(
                 query = query,
                 imagesRemoteDataSource = imagesRemoteDataSource,
@@ -41,12 +39,7 @@ internal class ImagesRepositoryImpl @Inject constructor(
                 ioDispatcher = ioDispatcher
             ),
             pagingSourceFactory = {
-                imagesLocalDataSource.getImagesWithQueryPagingSource(query).apply {
-                    this.registerInvalidatedCallback {
-                        Timber.d("getImagesWithPagingSource: PagingSource invalidated")
-                    }
-
-                }
+                imagesLocalDataSource.getImagesWithQueryPagingSource(query)
             }
 
         ).flow.map { pagingData ->

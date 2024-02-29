@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "fa67b69dc52489cfaf0b08d22f4df727",
+    "identityHash": "b00d87c66295c0eb17b29a6327b7f173",
     "entities": [
       {
         "tableName": "ImageWithQueryDB",
@@ -121,13 +121,13 @@
         "indices": [
           {
             "name": "index_ImageWithQueryDB_imageId_query",
-            "unique": true,
+            "unique": false,
             "columnNames": [
               "imageId",
               "query"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ImageWithQueryDB_imageId_query` ON `${TABLE_NAME}` (`imageId`, `query`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ImageWithQueryDB_imageId_query` ON `${TABLE_NAME}` (`imageId`, `query`)"
           }
         ],
         "foreignKeys": []
@@ -176,7 +176,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fa67b69dc52489cfaf0b08d22f4df727')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b00d87c66295c0eb17b29a6327b7f173')"
     ]
   }
 }

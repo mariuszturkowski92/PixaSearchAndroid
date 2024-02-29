@@ -7,6 +7,7 @@ import androidx.paging.RemoteMediator
 import com.andmar.data.images.local.ImagesLocalDataSource
 import com.andmar.data.images.local.entity.ImageWithQueryDB
 import com.andmar.data.images.network.ImagesRemoteDataSource
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -30,6 +31,7 @@ class ImagesRemoteMediator(
     ): MediatorResult {
         return try {
             withContext(ioDispatcher) {
+                Timber.d("load: loadType=$loadType state=$state, ${state.anchorPosition}")
                 val page = when (loadType) {
                     LoadType.REFRESH -> 1
                     LoadType.PREPEND ->
@@ -42,7 +44,7 @@ class ImagesRemoteMediator(
                     }
                 }
                 Timber.d("load: page=$page, loadType=$loadType")
-                val response = imagesRemoteDataSource.getImages(query, page, MAX_PAGE_SIZE)
+                val response = imagesRemoteDataSource.getImages(query, page, state.config.pageSize)
                 if (response.hits.isEmpty()) {
                     return@withContext MediatorResult.Success(
                         endOfPaginationReached = true
@@ -64,13 +66,16 @@ class ImagesRemoteMediator(
                 }
 
                 try {
-//                    imagesLocalDataSource.deleteOldestIfCountExceedCacheLimit()
+                    imagesLocalDataSource.deleteOldestIfCountExceedCacheLimit()
                 } catch (e: Exception) { // do not propagate this exception down the call stack, log it to be fixed in future.s
+                    if (e is CancellationException) {
+                        throw e
+                    }
                     Timber.e(e)
                 }
 
                 MediatorResult.Success(
-                    endOfPaginationReached = response.hits.size < MAX_PAGE_SIZE
+                    endOfPaginationReached = response.hits.size < state.config.pageSize
                 )
             }
         } catch (e: IOException) {

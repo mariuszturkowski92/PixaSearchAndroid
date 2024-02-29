@@ -5,17 +5,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.andmar.data.images.entity.PSImage
+import androidx.paging.map
 import com.andmar.data.images.usecase.GetImagesWithPagingUseCase
+import com.andmar.search.ui.ImageItem
 import com.andmar.search.ui.SearchScreenInput
 import com.andmar.ui.state.launchWithErrorHandling
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import java.util.Optional
 import javax.inject.Inject
 
@@ -27,15 +30,15 @@ internal class ImageSearchPagingViewModel @Inject constructor(
 
     private val _input = MutableStateFlow(SearchScreenInput(DEFAULT_SEARCH_QUERY))
     val input: StateFlow<SearchScreenInput>
-        get() = _input
+        get() = _input.asStateFlow()
 
-    private val _pagingData: MutableStateFlow<PagingData<PSImage>> = MutableStateFlow(PagingData.empty())
-    val pagingData: Flow<PagingData<PSImage>>
+    private val _pagingData: MutableStateFlow<PagingData<ImageItem>> = MutableStateFlow(PagingData.empty())
+    val pagingData: Flow<PagingData<ImageItem>>
         get() = _pagingData
 
-    private val _events = MutableSharedFlow<ImageSearchAction>()
-    val events: SharedFlow<ImageSearchAction>
-        get() = _events.asSharedFlow()
+    private val _events = Channel<ImageSearchAction>()
+    val events: Flow<ImageSearchAction>
+        get() = _events.receiveAsFlow()
 
     init {
         searchForImages()
@@ -44,6 +47,11 @@ internal class ImageSearchPagingViewModel @Inject constructor(
     fun searchForImages() {
         viewModelScope.launchWithErrorHandling {
             getImagesWithPagingUseCase(_input.value.query).cachedIn(viewModelScope)
+                .map { pagingData ->
+                    pagingData.map { image ->
+                        ImageItem.fromPSImage(image)
+                    }
+                }
                 .collect {
                     _pagingData.value = it
                 }
@@ -51,22 +59,24 @@ internal class ImageSearchPagingViewModel @Inject constructor(
     }
 
     fun onNewQuery(newQuery: String) {
-        _input.value = _input.value.copy(query = newQuery)
+        _input.update { it.copy(query = newQuery) }
     }
 
-    fun onImageClick(image: PSImage) {
-        _input.value = _input.value.copy(showDialog = Optional.of(image))
+    fun onImageClick(image: ImageItem) {
+        _input.update {
+            it.copy(showDialog = Optional.of(image))
+        }
     }
 
-    fun onConfirmImageOpen(image: PSImage) {
+    fun onConfirmImageOpen(image: ImageItem) {
         viewModelScope.launchWithErrorHandling {
-            _events.emit(ImageSearchAction.OpenImageDetails(image))
-            _input.value = _input.value.copy(showDialog = Optional.empty())
+            _events.send(ImageSearchAction.OpenImageDetails(image))
+            _input.update { it.copy(showDialog = Optional.empty()) }
         }
     }
 
     fun onDismissImageOpenDialog() {
-        _input.value = _input.value.copy(showDialog = Optional.empty())
+        _input.update { it.copy(showDialog = Optional.empty()) }
     }
 
     companion object {
@@ -77,5 +87,5 @@ internal class ImageSearchPagingViewModel @Inject constructor(
 }
 
 internal sealed class ImageSearchAction {
-    data class OpenImageDetails(val image: PSImage) : ImageSearchAction()
+    data class OpenImageDetails(val image: ImageItem) : ImageSearchAction()
 }
