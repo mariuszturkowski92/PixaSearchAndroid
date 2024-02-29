@@ -23,8 +23,8 @@ coil-compose = "2.6.0"
 palette-ktx = "1.0.0"
 room = "2.6.1"
 mockk = "1.13.9"
-paging = "3.2.1"
-paging-compose = "3.2.1"
+paging = "3.3.0-alpha03"
+paging-compose = "3.3.0-alpha03"
 assertK = "0.28.0"
 
 [libraries]

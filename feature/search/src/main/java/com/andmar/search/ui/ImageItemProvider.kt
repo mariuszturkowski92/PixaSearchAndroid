@@ -8,6 +8,7 @@ internal class ImageItemProvider : PreviewParameterProvider<ImageItem> {
         get() = sequenceOf(
             ImageItem(
                 id = 1,
+                pixaID = 1,
                 thumbSource = ImageData(
                     url = "https://www.example.com/image1",
                     height = 100,

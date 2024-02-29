@@ -31,6 +31,7 @@ class ImagesRemoteMediator(
     ): MediatorResult {
         return try {
             withContext(ioDispatcher) {
+                Timber.d("load: loadType=$loadType state=$state, ${state.anchorPosition}")
                 val page = when (loadType) {
                     LoadType.REFRESH -> 1
                     LoadType.PREPEND ->
@@ -43,7 +44,7 @@ class ImagesRemoteMediator(
                     }
                 }
                 Timber.d("load: page=$page, loadType=$loadType")
-                val response = imagesRemoteDataSource.getImages(query, page, MAX_PAGE_SIZE)
+                val response = imagesRemoteDataSource.getImages(query, page, state.config.pageSize)
                 if (response.hits.isEmpty()) {
                     return@withContext MediatorResult.Success(
                         endOfPaginationReached = true
@@ -74,7 +75,7 @@ class ImagesRemoteMediator(
                 }
 
                 MediatorResult.Success(
-                    endOfPaginationReached = response.hits.size < MAX_PAGE_SIZE
+                    endOfPaginationReached = response.hits.size < state.config.pageSize
                 )
             }
         } catch (e: IOException) {

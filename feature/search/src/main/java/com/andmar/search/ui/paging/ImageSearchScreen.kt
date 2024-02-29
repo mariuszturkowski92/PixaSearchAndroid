@@ -1,20 +1,23 @@
 package com.andmar.search.ui.paging
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
@@ -29,8 +32,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.painter.BrushPainter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -42,8 +49,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.andmar.common.navigation.AppNavigator
 import com.andmar.search.R
 import com.andmar.search.ui.ImageItem
@@ -51,7 +60,6 @@ import com.andmar.search.ui.ImageItemProvider
 import com.andmar.search.ui.components.SearchBar
 import com.andmar.ui.ObserveAsEvents
 import com.ramcosta.composedestinations.annotation.Destination
-import timber.log.Timber
 
 @Destination
 @Composable
@@ -86,7 +94,7 @@ internal fun ImageSearchPagingScreen(
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             is ImageSearchAction.OpenImageDetails -> {
-                appNavigator.navigateToImageDetails(event.image.id)
+                appNavigator.navigateToImageDetails(event.image.pixaID)
             }
         }
     }
@@ -125,9 +133,11 @@ private fun ImageResultGrid(
     onImageClick: (ImageItem) -> Unit,
 ) {
     val state = rememberPullToRefreshState()
-    LaunchedEffect(imagesResult.loadState.refresh) {
-        if (imagesResult.loadState.refresh is LoadState.NotLoading) {
-            state.endRefresh()
+    if (imagesResult.loadState.refresh is LoadState.NotLoading) {
+        LaunchedEffect(imagesResult.loadState.refresh) {
+            if (imagesResult.loadState.refresh is LoadState.NotLoading) {
+                state.endRefresh()
+            }
         }
     }
     LaunchedEffect(state.isRefreshing) {
@@ -135,19 +145,13 @@ private fun ImageResultGrid(
             reloadData()
         }
     }
-    val lazyStaggeredGridState = rememberLazyStaggeredGridState()
-
-    LaunchedEffect(imagesResult.itemCount) {
-        Timber.d("ImageSearchMainContent: imagesResult.loadState.refresh=${imagesResult.loadState.refresh}")
-        Timber.d("ImageSearchMainContent size: ${imagesResult.itemCount}")
-    }
 
     Box(
         Modifier
             .fillMaxSize()
             .nestedScroll(state.nestedScrollConnection)
     ) {
-        if (imagesResult.loadState.refresh is LoadState.Loading) {
+        if (imagesResult.loadState.refresh is LoadState.Loading && imagesResult.itemCount == 0) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else if (imagesResult.loadState.refresh is LoadState.Error && imagesResult.itemCount == 0) {
             ImageSearchErrorState(onReload = { imagesResult.retry() })
@@ -159,22 +163,31 @@ private fun ImageResultGrid(
                     snackbarHostState.showSnackbar(errorMessage)
                 }
             }
-            LazyVerticalStaggeredGrid(
-                columns = StaggeredGridCells.Adaptive(160.dp),
-                state = lazyStaggeredGridState,
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
                 content = {
                     items(
                         imagesResult.itemCount,
-                        key = imagesResult.itemKey { it.id }) { image ->
+                        key = imagesResult.itemKey() { it.id },
+                        contentType = imagesResult.itemContentType() { "IMAGE" }
+                    ) { image ->
                         imagesResult[image]?.let {
                             ImageGridItem(
                                 image = it,
                                 onImageClick = onImageClick
                             )
+                        } ?: run {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f)
+                                    .background(Color.Red)
+                            )
                         }
                     }
                     if (imagesResult.loadState.append is LoadState.Loading) {
-                        item(span = StaggeredGridItemSpan.FullLine) {
+                        item(
+                            contentType = { "LOADING" }) {
                             Box(modifier = Modifier.fillMaxWidth()) {
                                 CircularProgressIndicator(
                                     modifier = Modifier
@@ -184,7 +197,9 @@ private fun ImageResultGrid(
                             }
                         }
                     } else if (imagesResult.loadState.append is LoadState.Error) {
-                        item(span = StaggeredGridItemSpan.FullLine) {
+                        item(
+                            contentType = { "ERROR" },
+                        ) {
                             ImageSearchErrorState(onReload = { imagesResult.retry() })
                         }
                     }
@@ -206,7 +221,7 @@ private fun ImageResultGrid(
 private fun ImageSearchErrorState(onReload: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
@@ -227,22 +242,30 @@ private fun ImageSearchErrorState(onReload: () -> Unit) {
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview
-private fun ImageGridItem(
+private fun LazyItemScope.ImageGridItem(
     @PreviewParameter(ImageItemProvider::class) image: ImageItem,
     onImageClick: (ImageItem) -> Unit = { },
 ) {
     Box(
         modifier = Modifier
-            .aspectRatio(image.thumbSource.width.toFloat() / image.thumbSource.height)
+            .animateItemPlacement()
+            .aspectRatio((image.thumbSource.width.toFloat() / image.thumbSource.height.toFloat()))
+            .fillMaxWidth()
             .clickable(onClick = { onImageClick(image) })
     ) {
         val textColor = remember { mutableStateOf(Color.Black) }
 
         AsyncImage(
-            model = image.thumbSource.url,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(image.thumbSource.url)
+                .size(image.thumbSource.width, image.thumbSource.height)
+                .build(),
             contentDescription = stringResource(R.string.image_details_item_image_content_description),
+            placeholder = BrushPainter(SolidColor(Color.Gray)),
+            error = rememberVectorPainter(Icons.Default.Warning),
             modifier = Modifier
                 .fillMaxSize(),
             contentScale = ContentScale.FillWidth,
@@ -263,7 +286,14 @@ private fun ImageGridItem(
                 style = TextStyle(color = textColor.value)
             )
         }
+
+        Text(
+            text = image.id.toString(),
+            modifier = Modifier
+                .padding(8.dp)
+                .align(Alignment.Center),
+            style = MaterialTheme.typography.headlineLarge
+        )
     }
 
 }
-

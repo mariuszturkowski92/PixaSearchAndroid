@@ -34,7 +34,7 @@ internal class ImageSearchPagingViewModel @Inject constructor(
 
     private val _pagingData: MutableStateFlow<PagingData<ImageItem>> = MutableStateFlow(PagingData.empty())
     val pagingData: Flow<PagingData<ImageItem>>
-        get() = _pagingData.asStateFlow()
+        get() = _pagingData
 
     private val _events = Channel<ImageSearchAction>()
     val events: Flow<ImageSearchAction>

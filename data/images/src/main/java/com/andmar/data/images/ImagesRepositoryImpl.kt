@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
-const val MAX_PAGE_SIZE = 20
+const val MAX_PAGE_SIZE = 5
 
 @Singleton
 internal class ImagesRepositoryImpl @Inject constructor(
@@ -24,16 +24,14 @@ internal class ImagesRepositoryImpl @Inject constructor(
     private val imagesRemoteDataSource: ImagesRemoteDataSource,
     @IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
+    private val searchPagingConfig: PagingConfig,
 ) : ImagesRepository {
 
 
     @OptIn(ExperimentalPagingApi::class)
     override fun getImagesWithPagingSource(query: String): Flow<PagingData<PSImage>> {
         return Pager(
-            config = PagingConfig(
-                pageSize = MAX_PAGE_SIZE,
-                enablePlaceholders = true
-            ),
+            config = searchPagingConfig,
             remoteMediator = ImagesRemoteMediator(
                 query = query,
                 imagesRemoteDataSource = imagesRemoteDataSource,

@@ -21,7 +21,7 @@ class ImageDetailsViewModel @Inject constructor(
     private val imageId = handle.getStateFlow("imageId", Integer.MIN_VALUE)
 
     init {
-        _uiState.launchWithErrorHandlingOn(coroutineScope = viewModelScope, showLoading = true) {
+        mutableUiState.launchWithErrorHandlingOn(coroutineScope = viewModelScope, showLoading = true) {
             imageId.stateIn(this).collect { id ->
                 if (id != Integer.MIN_VALUE) {
                     getImageById(id)
@@ -35,9 +35,9 @@ class ImageDetailsViewModel @Inject constructor(
     }
 
     private fun getImageById(imageId: Int, forceReload: Boolean = false) {
-        _uiState.launchWithErrorHandlingOn(viewModelScope, retryTag = GET_IMAGE_RETRY_TAG) {
+        mutableUiState.launchWithErrorHandlingOn(viewModelScope, retryTag = GET_IMAGE_RETRY_TAG) {
             getImageWithId(imageId, forceReload).collect { image ->
-                _uiState.success(image)
+                mutableUiState.success(image)
             }
         }
     }

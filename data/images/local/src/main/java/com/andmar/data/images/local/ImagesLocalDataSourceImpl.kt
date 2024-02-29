@@ -2,11 +2,14 @@ package com.andmar.data.images.local
 
 import androidx.paging.PagingSource
 import androidx.room.withTransaction
+import com.andmar.common.utils.IoDispatcher
 import com.andmar.data.images.local.ImagesLocalDataSource.Companion.MAX_EMPTY_QUERIES_IMAGES_CACHED
 import com.andmar.data.images.local.ImagesLocalDataSource.Companion.MAX_QUERIES_CACHED
 import com.andmar.data.images.local.entity.ImageWithQueryDB
 import com.andmar.data.images.local.entity.QueryDB
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,6 +19,8 @@ internal class ImagesLocalDataSourceImpl @Inject constructor(
     private val database: ImagesDatabase,
     private val imageWithQueryDao: ImageWithQueryDao,
     private val queryDao: QueryDao,
+    @IoDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
 ) : ImagesLocalDataSource {
 
     override suspend fun deleteOldestIfCountExceedCacheLimit() {
@@ -82,12 +87,14 @@ internal class ImagesLocalDataSourceImpl @Inject constructor(
     }
 
     override suspend fun updateExistingQueryWIthImages(data: List<ImageWithQueryDB>, page: Int) {
-        if (data.map { it.query }.distinct().size > 1) {
-            throw IllegalArgumentException("All images must have the same query")
-        }
-        database.withTransaction {
-            imageWithQueryDao.insertAll(data)
-            queryDao.updatePage(query = data.first().query, page = page)
+        withContext(ioDispatcher) {
+            if (data.map { it.query }.distinct().size > 1) {
+                throw IllegalArgumentException("All images must have the same query")
+            }
+            database.withTransaction {
+                imageWithQueryDao.insertAll(data)
+                queryDao.updatePage(query = data.first().query, page = page)
+            }
         }
     }
 
