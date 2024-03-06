@@ -28,7 +28,7 @@ internal interface ImageWithQueryDao {
     @Query("SELECT * FROM ImageWithQueryDB WHERE `query` = :query")
     fun getByQueryFlow(query: String): Flow<List<ImageWithQueryDB>>
 
-    @Query("SELECT * FROM ImageWithQueryDB WHERE `query` = :query")
+    @Query("SELECT * FROM ImageWithQueryDB WHERE `query` = :query ORDER BY id ASC")
     fun getByQueryPagingSource(query: String): PagingSource<Int, ImageWithQueryDB>
 
     // delete all with query

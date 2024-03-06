@@ -4,7 +4,6 @@ import androidx.annotation.VisibleForTesting
 
 
 data class PSImage(
-    val id: Long,
     val pixaId: Int,
     val thumbSource: ImageData,
     val largeImage: ImageData,
@@ -19,7 +18,6 @@ data class PSImage(
         @VisibleForTesting
         fun testModel(id: Int) =
             PSImage(
-                id.toLong(),
                 id,
                 ImageData("https://www.google.com", 150, 120),
                 ImageData(

@@ -29,6 +29,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -37,6 +38,7 @@ import androidx.compose.ui.graphics.painter.BrushPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
@@ -45,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.andmar.data.images.entity.PSImage
 import com.andmar.ui.state.StateHandling
 import com.andmar.ui.state.StateType
@@ -58,10 +61,10 @@ fun ImageDetailsScreen(
     imageId: Int,
     viewModel: ImageDetailsViewModel = hiltViewModel(),
 ) {
-    val uiState = viewModel.uiState.collectAsState()
-    uiState.value.StateHandling(
+    val uiState by viewModel.uiState.collectAsState()
+    uiState.StateHandling(
         retryHandler = viewModel,
-        content = { ImageDetailContent(uiState.value, onRefresh = viewModel::refresh) },
+        content = { ImageDetailContent(uiState, onRefresh = viewModel::refresh) },
         onError = { state, cb ->
             state.data?.let {// if data is not null, show content and default error handling
                 cb.content(it)
@@ -80,7 +83,7 @@ fun ImageDetailsScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    cb.loader(data)
+                    cb.loader(null)
                 }
             }
         }
@@ -118,7 +121,11 @@ private fun ImageDetailContent(uiState: UiState<PSImage>, onRefresh: () -> Unit 
                 .padding(bottom = WindowInsets.navigationBars.getBottom(LocalDensity.current).dp)
         ) {
             AsyncImage(
-                model = imageDetails.largeImage.url,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(imageDetails.largeImage.url)
+                    .size(imageDetails.largeImage.width, imageDetails.largeImage.height)
+                    .placeholderMemoryCacheKey(imageDetails.thumbSource.url)
+                    .build(),
                 contentDescription = "Image",
                 placeholder = if (LocalInspectionMode.current) {
                     BrushPainter(

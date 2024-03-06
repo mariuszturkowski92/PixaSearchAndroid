@@ -39,7 +39,6 @@ object Mapper {
 
     fun mapFromImageWithQueryDBToPSImage(imageWithQueryDB: ImageWithQueryDB): PSImage {
         return PSImage(
-            id = imageWithQueryDB.id!!,
             pixaId = imageWithQueryDB.imageId,
             thumbSource = ImageData(
                 imageWithQueryDB.previewURL,

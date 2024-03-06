@@ -168,7 +168,7 @@ private fun ImageResultGrid(
                 content = {
                     items(
                         imagesResult.itemCount,
-                        key = imagesResult.itemKey() { it.id },
+                        key = imagesResult.itemKey() { it.pixaID },
                         contentType = imagesResult.itemContentType() { "IMAGE" }
                     ) { image ->
                         imagesResult[image]?.let {
@@ -286,14 +286,6 @@ private fun LazyItemScope.ImageGridItem(
                 style = TextStyle(color = textColor.value)
             )
         }
-
-        Text(
-            text = image.id.toString(),
-            modifier = Modifier
-                .padding(8.dp)
-                .align(Alignment.Center),
-            style = MaterialTheme.typography.headlineLarge
-        )
     }
 
 }

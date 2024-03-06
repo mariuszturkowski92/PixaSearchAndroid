@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 @Entity(
     indices = [Index(
         value = arrayOf("imageId", "query"),
+        unique = true
     )]
 )
 data class ImageWithQueryDB(

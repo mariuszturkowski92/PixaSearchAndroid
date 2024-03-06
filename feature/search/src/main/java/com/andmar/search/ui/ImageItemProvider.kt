@@ -7,7 +7,6 @@ internal class ImageItemProvider : PreviewParameterProvider<ImageItem> {
     override val values: Sequence<ImageItem>
         get() = sequenceOf(
             ImageItem(
-                id = 1,
                 pixaID = 1,
                 thumbSource = ImageData(
                     url = "https://www.example.com/image1",
