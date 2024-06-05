@@ -55,13 +55,14 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.andmar.common.navigation.AppNavigator
 import com.andmar.search.R
+import com.andmar.search.SearchNavGraph
 import com.andmar.search.ui.ImageItem
 import com.andmar.search.ui.ImageItemProvider
 import com.andmar.search.ui.components.SearchBar
 import com.andmar.ui.ObserveAsEvents
 import com.ramcosta.composedestinations.annotation.Destination
 
-@Destination
+@Destination<SearchNavGraph>(start = true)
 @Composable
 internal fun ImageSearchPagingScreen(
     appNavigator: AppNavigator,

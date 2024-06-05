@@ -1,4 +1,4 @@
-package com.andmar.transaction.navigation
+package com.andmar.pixabaysearch.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.SnackbarHostState
@@ -7,14 +7,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.andmar.pixabaysearch.navigation.AppNavigatorImpl
-import com.andmar.pixabaysearch.navigation.NavGraphs
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
-import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
+import com.ramcosta.composedestinations.generated.app.navgraphs.MainNavGraph
 import com.ramcosta.composedestinations.navigation.dependency
+import com.ramcosta.composedestinations.rememberNavHostEngine
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialNavigationApi::class)
 @ExperimentalAnimationApi
 @Composable
 internal fun AppNavigation(
@@ -25,27 +22,12 @@ internal fun AppNavigation(
     //pass your enter/exit transitions here
     val appNavigator = remember(navController) { AppNavigatorImpl(navController) }
 
-    val navHostEngine = rememberAnimatedNavHostEngine(
-        rootDefaultAnimations = RootNavGraphDefaultAnimations(
-            enterTransition = {
-                defaultDiaryEnterTransition(initialState, targetState)
-
-            },
-            exitTransition = {
-                defaultDiaryExitTransition(
-                    initialState,
-                    targetState
-                )
-            },
-            popEnterTransition = { defaultDiaryPopEnterTransition() },
-            popExitTransition = { defaultDiaryPopExitTransition() },
-        )
-    )
+    val navHostEngine = rememberNavHostEngine()
 
     DestinationsNavHost(
         engine = navHostEngine,
         navController = navController,
-        navGraph = NavGraphs.root,
+        navGraph = MainNavGraph,
         modifier = modifier,
         dependenciesContainerBuilder = {
             dependency(snackbarHostState)

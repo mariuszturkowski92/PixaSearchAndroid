@@ -52,10 +52,10 @@ import com.andmar.ui.state.UiState
 import com.ramcosta.composedestinations.annotation.Destination
 
 // create destination
-@Destination
+@Destination<DetailsNavGraph>(start = true)
 @Composable
 fun ImageDetailsScreen(
-    imageId: Int,
+    imageId: Int?,
     viewModel: ImageDetailsViewModel = hiltViewModel(),
 ) {
     val uiState = viewModel.uiState.collectAsState()
