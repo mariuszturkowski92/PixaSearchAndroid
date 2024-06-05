@@ -5,13 +5,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-abstract class StateViewModel<T>(
-    protected val mutableUiState: MutableStateFlow<UiState<T>> = MutableStateFlow(
-        UiState.none()
-    ),
-) : ViewModel(), RetryHandler by BasicRetryHandler({ mutableUiState }) {
+abstract class StateViewModel<T>() : ViewModel(), RetryHandler<ErrorData> by BasicRetryHandler<ErrorData>() {
+
+    protected val mutableUiState = MutableStateFlow(UiState.none<T>())
+
     val uiState: StateFlow<UiState<T>>
         get() = mutableUiState.asStateFlow()
-
 
 }

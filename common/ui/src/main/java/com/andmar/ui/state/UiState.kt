@@ -3,7 +3,7 @@ package com.andmar.ui.state
 import androidx.compose.runtime.Stable
 import kotlinx.coroutines.flow.MutableStateFlow
 
-@Stable
+
 data class UiState<T>(
     val data: T? = null,
     val state: StateType = StateType.None,

@@ -19,18 +19,18 @@ import com.andmar.ui.R
 
 @Composable
 fun <T> UiState<T>.StateHandling(
-    retryHandler: RetryHandler?,
+    retryHandler: RetryHandler<ErrorData>?,
     content: @Composable (T) -> Unit = {},
-    composableBuilder: StateComposableBuilder<T> = remember {
+    composableBuilder: StateComposableBuilder<T, ErrorData> = remember {
         StateComposableBuilder(
             retryHandler,
             content = content
         )
     },
-    onEmpty: @Composable (composableBuilder: StateComposableBuilder<T>) -> Unit = {
+    onEmpty: @Composable (composableBuilder: StateComposableBuilder<T, ErrorData>) -> Unit = {
         composableBuilder.empty()
     },
-    onLoading: @Composable (T?, composableBuilder: StateComposableBuilder<T>) -> Unit = { data, cb ->
+    onLoading: @Composable (T?, composableBuilder: StateComposableBuilder<T, ErrorData>) -> Unit = { data, cb ->
         Box(
             modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
         ) {
@@ -44,7 +44,7 @@ fun <T> UiState<T>.StateHandling(
      * Called when an error is received. If this returns true, the error will be considered handled and will not be shown
      * @return true if the error was handled, false otherwise
      */
-    onError: @Composable ((UiState<T>, composableBuilder: StateComposableBuilder<T>) -> Boolean) = { state, cb ->
+    onError: @Composable ((UiState<T>, composableBuilder: StateComposableBuilder<T, ErrorData>) -> Boolean) = { state, cb ->
         state.data?.let {
             cb.content(it)
         }
@@ -76,8 +76,8 @@ fun <T> UiState<T>.StateHandling(
 
 }
 
-open class StateComposableBuilder<T>(
-    retryHandler: RetryHandler?,
+open class StateComposableBuilder<T, ED : ErrorData>(
+    retryHandler: RetryHandler<ED>?,
     val content: @Composable (T) -> Unit,
     val loader: @Composable (T?) -> Unit = {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -88,7 +88,7 @@ open class StateComposableBuilder<T>(
     val error: @Composable (UiState<T>) -> Unit = { state ->
         AlertDialog(
             onDismissRequest = {
-                retryHandler?.onDismissErrorDialog(state)
+                retryHandler?.onDismissErrorDialog()
             },
             title = {
                 Text(
