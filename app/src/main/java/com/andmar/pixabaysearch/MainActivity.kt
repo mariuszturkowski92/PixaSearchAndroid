@@ -6,17 +6,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -26,9 +25,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.rememberNavController
-import com.andmar.pixabaysearch.navigation.NavGraphs
-import com.andmar.transaction.navigation.AppNavigation
+import com.andmar.feature.details.DetailsNavGraph
+import com.andmar.pixabaysearch.navigation.AppNavigation
 import com.andmar.ui.theme.PixabaySearchTheme
+import com.ramcosta.composedestinations.generated.app.navgraphs.MainNavGraph
+import com.ramcosta.composedestinations.generated.details.navgraphs.DetailsGraph
 import com.ramcosta.composedestinations.spec.NavGraphSpec
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -71,7 +72,7 @@ internal fun Home() {
 @Stable
 @Composable
 private fun NavController.currentScreenAsState(): State<NavGraphSpec> {
-    val selectedItem = remember { mutableStateOf(NavGraphs.images) }
+    val selectedItem: MutableState<NavGraphSpec> = remember { mutableStateOf(DetailsGraph) }
 
     DisposableEffect(this) {
         val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
@@ -89,7 +90,7 @@ private fun NavController.currentScreenAsState(): State<NavGraphSpec> {
 
 fun NavDestination.navGraph(): NavGraphSpec {
     hierarchy.forEach { destination ->
-        NavGraphs.root.nestedNavGraphs.forEach { navGraph ->
+        MainNavGraph.nestedNavGraphs.forEach { navGraph ->
             if (destination.route == navGraph.route) {
                 return navGraph
             }
