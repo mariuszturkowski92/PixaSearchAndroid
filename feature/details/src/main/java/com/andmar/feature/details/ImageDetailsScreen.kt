@@ -52,13 +52,16 @@ import com.andmar.data.images.entity.PSImage
 import com.andmar.ui.state.StateHandling
 import com.andmar.ui.state.StateType
 import com.andmar.ui.state.UiState
+import com.andmar.ui.state.component.DefaultErrorDialog
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import java.util.Optional
 
 // create destination
-@Destination
+@Destination<DetailsNavGraph>(start = true)
 @Composable
 fun ImageDetailsScreen(
-    imageId: Int,
+    imageId: Int?,
     viewModel: ImageDetailsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -88,6 +91,12 @@ fun ImageDetailsScreen(
             }
         }
     )
+
+    viewModel.errorData.collectAsState(initial = Optional.empty()).value.let {
+        if (it.isPresent) {
+            DefaultErrorDialog(it.get(), viewModel)
+        }
+    }
 }
 
 

@@ -2,8 +2,10 @@ package com.andmar.feature.details
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.andmar.common.utils.result.Result
 import com.andmar.data.images.entity.PSImage
 import com.andmar.data.images.usecase.GetImageWithIdUseCase
+import com.andmar.ui.state.ErrorData
 import com.andmar.ui.state.StateViewModel
 import com.andmar.ui.state.launchWithErrorHandlingOn
 import com.andmar.ui.state.success
@@ -21,7 +23,10 @@ class ImageDetailsViewModel @Inject constructor(
     private val imageId = handle.getStateFlow("imageId", Integer.MIN_VALUE)
 
     init {
-        mutableUiState.launchWithErrorHandlingOn(coroutineScope = viewModelScope, showLoading = true) {
+        mutableUiState.launchWithErrorHandlingOn(
+            coroutineScope = viewModelScope,
+            showLoading = true
+        ) {
             imageId.stateIn(this).collect { id ->
                 if (id != Integer.MIN_VALUE) {
                     getImageById(id)
@@ -36,8 +41,15 @@ class ImageDetailsViewModel @Inject constructor(
 
     private fun getImageById(imageId: Int, forceReload: Boolean = false) {
         mutableUiState.launchWithErrorHandlingOn(viewModelScope, retryTag = GET_IMAGE_RETRY_TAG) {
-            getImageWithId(imageId, forceReload).collect { image ->
-                mutableUiState.success(image)
+            getImageWithId(imageId, forceReload).collect { result ->
+                when (result) {
+                    is Result.Failure -> {
+                        showError(ErrorData.Error(result.error, GET_IMAGE_RETRY_TAG))
+                    }
+                    is Result.Success -> {
+                        mutableUiState.success(result.data)
+                    }
+                }
             }
         }
     }
