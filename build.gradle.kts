@@ -7,5 +7,6 @@ plugins {
     alias(libs.plugins.serialization) apply false
     alias(libs.plugins.daggerAndroid) apply false
     alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.compose.compiler) apply false
 }
 true // Needed to make the Suppress annotation work for the plugins block

@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.andmar.common.utils"
+    namespace = "com.andmar.common.domains"
     compileSdk = 34
 
     defaultConfig {
@@ -29,16 +29,6 @@ android {
         jvmTarget = "1.8"
     }
 }
-
-dependencies {
-
-    implementation(libs.core.ktx)
-    // corutines
-    implementation(libs.kotlinx.coroutines.core)
-    // hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.espresso.core)
+dependencies{
+    implementation(project(":common:utils"))
 }

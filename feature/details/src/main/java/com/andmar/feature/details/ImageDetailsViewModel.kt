@@ -23,7 +23,7 @@ class ImageDetailsViewModel @Inject constructor(
     private val imageId = handle.getStateFlow("imageId", Integer.MIN_VALUE)
 
     init {
-        mutableUiState.launchWithErrorHandlingOn(
+        _uiState.launchWithErrorHandlingOn(
             coroutineScope = viewModelScope,
             showLoading = true
         ) {
@@ -40,14 +40,14 @@ class ImageDetailsViewModel @Inject constructor(
     }
 
     private fun getImageById(imageId: Int, forceReload: Boolean = false) {
-        mutableUiState.launchWithErrorHandlingOn(viewModelScope, retryTag = GET_IMAGE_RETRY_TAG) {
+        _uiState.launchWithErrorHandlingOn(viewModelScope, retryTag = GET_IMAGE_RETRY_TAG) {
             getImageWithId(imageId, forceReload).collect { result ->
                 when (result) {
                     is Result.Failure -> {
                         showError(ErrorData.Error(result.error, GET_IMAGE_RETRY_TAG))
                     }
                     is Result.Success -> {
-                        mutableUiState.success(result.data)
+                        _uiState.success(result.data)
                     }
                 }
             }
